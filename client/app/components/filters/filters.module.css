@@ -14,20 +14,34 @@
 .row {
   display: flex;
   gap: 30px;
+  align-items: center;
 }
 
-.group [role="radiogroup"] {
+.rangeLabel {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 110px;
+}
+
+.inlineGroup {
   display: flex;
-  height: 36px;
   align-items: center;
   gap: 30px;
 }
 
-.group [role="group"] {
+.inlineGroup [role="radiogroup"],
+.inlineGroup [role="group"] {
   display: flex;
-  height: 36px;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
+}
+
+.inlineGroup [role="radiogroup"],
+.inlineGroup [role="group"] {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 @media (max-width: 768px) {

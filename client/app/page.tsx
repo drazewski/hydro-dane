@@ -6,6 +6,7 @@ import Filters from "./components/filters/Filters";
 import StationForm from "./components/stationForm/StationForm";
 import { useStationStore } from "./hooks/useStationStore";
 import Charts from "./components/charts/Charts";
+import Header from "./components/header/Header";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,11 +26,14 @@ export default function Home() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Header />
       <main className={styles.main}>
         <div className={styles.titleWrapper}>
           <h2 className={styles.title}>{selectedStation ? selectedStation.waterName : 'Wybierz stację pomiarową'}</h2>
         </div>
-        <StationForm />
+        <div className={styles.stationRow}>
+          <StationForm />
+        </div>
         {selectedStation && <Filters selectedStation={selectedStation} />}
         {selectedStation && selectedYearFrom && selectedYearTo && selectedType && (
           <div className={styles.subtitleWrapper}>

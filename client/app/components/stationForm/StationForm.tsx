@@ -31,11 +31,7 @@ const StationForm = () => {
     <div>
       <Autocomplete
         data={stationsNames}
-        placeholder="Wybierz rzekę"
-        classNames={{
-          option: styles.option,
-          input: styles.option,
-        }}
+        placeholder="Wpisz nazwę rzeki, miejscowości lub numer stacji..."
         value={value}
         onChange={(newValue) => {
           setValue(newValue);

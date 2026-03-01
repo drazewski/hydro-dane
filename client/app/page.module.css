@@ -3,7 +3,11 @@
   flex-direction: column;
   gap: 10px;
   grid-row-start: 2;
-  margin-top: 20px;
+  margin-top: 10px;
+}
+
+.stationRow {
+  margin-bottom: 20px;
 }
 
 .titleWrapper {
@@ -12,7 +16,7 @@
 
 .title {
   font-weight: 400;
-  font-size: 28px;
+  font-size: 22px;
   line-height: 1;
 }
 
@@ -21,7 +25,7 @@
   font-size: 16px;
   margin-bottom: 10px;
   text-align: center;
-  font-family: var(--font-montserrat-medium-light);
+  font-family: var(--font-open-sans), system-ui, sans-serif;
 }
 
 .name {
@@ -33,7 +37,7 @@
   font-size: 16px;
   text-align: center;
   margin-top: 10px;
-  font-family: var(--font-montserrat-medium-light);
+  font-family: var(--font-open-sans), system-ui, sans-serif;
 } 
 
 .footerText2 {
@@ -41,5 +45,5 @@
   font-weight: 800;
   color: #d43e3e;
   text-align: center;
-  font-family: var(--font-montserrat-medium-light);
+  font-family: var(--font-open-sans), system-ui, sans-serif;
 } 

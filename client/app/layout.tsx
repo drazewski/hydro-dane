@@ -1,8 +1,15 @@
 import "@mantine/core/styles.css";
 import "./globals.css";
 import localFont from "next/font/local";
+import { Open_Sans } from "next/font/google";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { theme } from "../theme";
+
+const openSans = Open_Sans({
+  subsets: ["latin"],
+  variable: "--font-open-sans",
+  display: "swap",
+});
 
 const juraMedium = localFont({
   src: "./fonts/Jura/static/Jura-Medium.ttf",
@@ -13,16 +20,6 @@ const juraBold = localFont({
   src: "./fonts/Jura/static/Jura-Bold.ttf",
   variable: "--font-jura-bold",
   weight: "600",
-});
-const montserrat = localFont({
-  src: "./fonts/Montserrat/static/Montserrat-Medium.ttf",
-  variable: "--font-montserrat-medium",
-  weight: "400",
-});
-const montserratLight = localFont({
-  src: "./fonts/Montserrat/static/Montserrat-Light.ttf",
-  variable: "--font-montserrat-medium-light",
-  weight: "300",
 });
 
 export const metadata = {
@@ -41,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
         />
       </head>
-      <body className={`${juraMedium.variable} ${juraBold.variable} ${montserrat.variable} ${montserratLight.variable}`}>
+      <body className={`${openSans.variable} ${juraMedium.variable} ${juraBold.variable}`}>
         <MantineProvider theme={theme}>
           {children}
         </MantineProvider>

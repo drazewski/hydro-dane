@@ -23,7 +23,7 @@ body {
   max-width: 1200px;
   margin: auto;
   padding: 0 20px;
-  font-family: var(--font-montserrat-medium);
+  font-family: var(--font-open-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

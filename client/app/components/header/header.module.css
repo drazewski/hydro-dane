@@ -1,14 +1,26 @@
 .header {
-  font-family: var(--font-jura-medium);
-  padding: 0 0 25px 0;
+  padding: 24px 0;
+  /* margin-bottom: 24px; */
+}
 
-  h1 {
-    font-size: 50px;
-    text-transform: uppercase;
-    color: #1c7ed6;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 
-    span {
-      text-transform: none;
-    }
-  }
+.titleIcon {
+  color: #1c7ed6;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 400;
+  color: #1c7ed6;
+}
+
+.subtitle {
+  font-size: 16px;
+  font-weight: 300;
+  color: #555;
 }

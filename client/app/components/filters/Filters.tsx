@@ -76,63 +76,59 @@ const handleYearFromChange = (_: string | null, option: ComboboxItem) => {
       ) : (
         <div className={styles.container}>
           <div className={styles.row}>
+            <Text className={styles.rangeLabel}>Zakres danych</Text>
             <Select
               data={yearsOptionsFrom}
-              label="Rok: od"
-              placeholder="Wybierz"
+              placeholder="od"
               disabled={!sortedYears.length}
               classNames={{ option: styles.option, input: styles.option }}
               value={yearFrom ?? null}
               onChange={handleYearFromChange}
-              withAsterisk
+              w={100}
             />
             <Select
               data={yearsOptionsTo}
-              label="Rok: do"
-              placeholder="Wybierz"
+              placeholder="do"
               disabled={!sortedYears.length}
               classNames={{ option: styles.option, input: styles.option }}
               value={yearTo ?? null}
               onChange={handleYearToChange}
-              withAsterisk
+              w={100}
             />
-            <div>
-              <div>Dane roczne / miesięczne</div>
-              <Switch
-                label={isMonthlyData ? "Miesięczne" : "Roczne"}
-                onChange={(event) => setMonthlyData(event.currentTarget.checked)}
-                value="yearly"
-                />
-            </div>
+            <Switch
+              size="lg"
+              label={isMonthlyData ? "Miesięczne" : "Roczne"}
+              styles={{ label: { fontSize: 14 } }}
+              onChange={(event) => setMonthlyData(event.currentTarget.checked)}
+              value="yearly"
+            />
           </div>
           <div className={styles.row}>
-            <div>
-              <Radio.Group
-                name="dataType"
-                label="Rodzaj danych"
-                withAsterisk
-                className={styles.group}
-                value={dataType}
-                onChange={handleDataTypeChange}
-              >
-                <Radio label="Stan wody (cm)" value={RecordDataType.level} />
-                <Radio label="Przepływ (m3/s)" value={RecordDataType.flow} />
-                <Radio label="Temperatura wody (°C)" value={RecordDataType.temperature} />
-              </Radio.Group>
-          
-            </div>
-            <div>
-              <Checkbox.Group
-                label={"Wartości"}
-                value={aggregations}
-                onChange={setAggregation}
-                className={styles.group}
-              >
-                  <Checkbox value="max" label="Maksymalne" color="red"/>
-                  <Checkbox value="avg" label="Średnie" color="blue"/>
-                  <Checkbox value="min" label="Minimalne" color="black"/>
-              </Checkbox.Group>
-            </div>
+            <Radio.Group
+              name="dataType"
+              label="Typ danych"
+              className={styles.inlineGroup}
+              classNames={{ label: styles.rangeLabel }}
+              value={dataType}
+              onChange={handleDataTypeChange}
+            >
+              <Radio label="Stan wody (cm)" value={RecordDataType.level} />
+              <Radio label="Przepływ (m3/s)" value={RecordDataType.flow} />
+              <Radio label="Temperatura wody (°C)" value={RecordDataType.temperature} />
+            </Radio.Group>
+          </div>
+          <div className={styles.row}>
+            <Checkbox.Group
+              label={"Wartości"}
+              classNames={{ label: styles.rangeLabel }}
+              value={aggregations}
+              onChange={setAggregation}
+              className={styles.inlineGroup}
+            >
+              <Checkbox value="max" label="Maksymalne" color="red"/>
+              <Checkbox value="avg" label="Średnie" color="blue"/>
+              <Checkbox value="min" label="Minimalne" color="black"/>
+            </Checkbox.Group>
           </div>
         </div>
       )}

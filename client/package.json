@@ -13,6 +13,7 @@
     "@mantine/core": "7.13.5",
     "@mantine/form": "^7.14.0",
     "@mantine/hooks": "7.13.5",
+    "@tabler/icons-react": "^3.37.1",
     "axios": "^1.7.7",
     "next": "^15.0.3",
     "react": "18.3.1",

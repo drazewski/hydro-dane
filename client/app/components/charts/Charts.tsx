@@ -141,10 +141,10 @@ const Charts = ({ selectedStation, selectedYearFrom, selectedYearTo, selectedTyp
           position: { y: 90 }
         }}
       />
-      <p style={{ fontSize: 16, textAlign: 'center', marginTop: 10, fontFamily: 'var(--font-montserrat-medium-light)' }}>
+      <p style={{ fontSize: 16, textAlign: 'center', marginTop: 10, fontFamily: 'var(--font-open-sans), system-ui, sans-serif' }}>
         Źródłem pochodzenia danych jest <strong><a href="https://imgw.pl/" target="_blank">Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy</a></strong>
       </p>
-      <p style={{ fontSize: 16, fontWeight: 800, color: '#d43e3e', textAlign: 'center', fontFamily: 'var(--font-montserrat-medium-light)' }}>
+      <p style={{ fontSize: 16, fontWeight: 800, color: '#d43e3e', textAlign: 'center', fontFamily: 'var(--font-open-sans), system-ui, sans-serif' }}>
         Dane Instytutu Meteorologii i Gospodarki Wodnej – Państwowego Instytutu Badawczego zostały przetworzone
       </p>
       </>
