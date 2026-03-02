@@ -6,13 +6,13 @@ interface StationStoreType {
   yearFrom: string | null;
   yearTo: string | null;
   isMonthlyData: boolean;
-  dataType: RecordDataType | null;
+  dataType: RecordDataType;
   aggregation: ('min' | 'avg' | 'max')[];
   setSelectedStation: (station: StationType | null) => void;
   setYearFrom: (year: string | null) => void;
   setYearTo: (year: string | null) => void;
   setIsMonthlyData: (isMonthly: boolean) => void;
-  setSelectedDataType: (dataType: RecordDataType | null) => void;
+  setSelectedDataType: (dataType: RecordDataType) => void;
   setAggregation: (aggregation: ('min' | 'avg' | 'max')[]) => void;
 }
 
@@ -21,7 +21,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
   yearFrom: null,
   yearTo: null,
   isMonthlyData: false,
-  dataType: null,
+  dataType: RecordDataType.level,
   aggregation: ['min','avg','max'],
   setSelectedStation: (newStation) => set(() => ({ station: newStation })),
   setYearFrom: (year) => set(() => ({ yearFrom: year })),

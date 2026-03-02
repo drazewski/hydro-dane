@@ -4,7 +4,6 @@ import { Autocomplete, CloseButton } from '@mantine/core';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { useStations } from '../../hooks/useStations';
 import { useStationStore } from '../../hooks/useStationStore';
-import styles from "./stationForm.module.css";
 
 const StationForm = () => {
   const { stations } = useStations();

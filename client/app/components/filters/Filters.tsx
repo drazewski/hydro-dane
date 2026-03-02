@@ -2,7 +2,7 @@ import { Checkbox, ComboboxItem, Loader, Radio, Select, Switch, Text } from "@ma
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
 import styles from "./filters.module.css";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useAvailableYears } from "../../hooks/useAvailableYears";
 
 interface Props {
@@ -23,6 +23,14 @@ const Filters = ({ selectedStation }: Props) => {
   const { years, isLoading, isError } = useAvailableYears(selectedStation?.id);
 
   const sortedYears = useMemo(() => [...years].sort((a, b) => a - b), [years]);
+
+  useEffect(() => {
+    if (!isLoading && sortedYears.length > 0) {
+      setYearFrom(sortedYears[0].toString());
+      setYearTo(sortedYears[sortedYears.length - 1].toString());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStation.id, isLoading]);
 
   const yearsOptions = useMemo(
     () => sortedYears.map((y) => ({ label: y.toString(), value: y.toString() })),
@@ -97,7 +105,7 @@ const handleYearFromChange = (_: string | null, option: ComboboxItem) => {
             />
             <Switch
               size="lg"
-              label={isMonthlyData ? "Miesięczne" : "Roczne"}
+              label={isMonthlyData ? "Wartości miesięczne" : "Wartości roczne"}
               styles={{ label: { fontSize: 14 } }}
               onChange={(event) => setMonthlyData(event.currentTarget.checked)}
               value="yearly"

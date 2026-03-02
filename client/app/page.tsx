@@ -29,7 +29,7 @@ export default function Home() {
       <Header />
       <main className={styles.main}>
         <div className={styles.titleWrapper}>
-          <h2 className={styles.title}>{selectedStation ? selectedStation.waterName : 'Wybierz stację pomiarową'}</h2>
+          <h2 className={styles.title}>{selectedStation ? `${selectedStation.waterName} - ${selectedStation.name.toUpperCase()} (${selectedStation.id})` : 'Wybierz stację pomiarową'}</h2>
         </div>
         <div className={styles.stationRow}>
           <StationForm />
@@ -37,14 +37,14 @@ export default function Home() {
         {selectedStation && <Filters selectedStation={selectedStation} />}
         {selectedStation && selectedYearFrom && selectedYearTo && selectedType && (
           <div className={styles.subtitleWrapper}>
-            {selectedStation && (
+            {/* {selectedStation && (
             <div className={styles.subtitleWrapper}>
               <span>Stacja pomiarowa:</span>
               <span className={styles.name}>
                 <strong>{`${selectedStation.waterName} - ${selectedStation.name.toLowerCase()} (${selectedStation.id})`}</strong>
               </span>
             </div>
-          )}
+          )} */}
             <Charts
               selectedStation={selectedStation} 
               selectedType={selectedType}
