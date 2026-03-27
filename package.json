@@ -4,6 +4,8 @@
   "description": "Node.js with Express, Sequelize & MySQL",
   "main": "server.js",
   "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
