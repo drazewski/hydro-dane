@@ -51,13 +51,9 @@ export default function Home() {
             <Charts
               selectedStation={selectedStation} 
               selectedType={selectedType}
-              selectedYearFrom={selectedYearFrom}
-              selectedYearTo={selectedYearTo}
             />
             <ExtremumTable
               selectedStation={selectedStation}
-              selectedYearFrom={selectedYearFrom}
-              selectedYearTo={selectedYearTo}
             />
           </div>
         )}

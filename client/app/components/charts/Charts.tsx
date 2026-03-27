@@ -10,19 +10,17 @@ import ChartTooltip from '../chartTooltip/ChartTooltip';
 interface Props {
   selectedStation: StationType;
   selectedType: RecordDataType;
-  selectedYearFrom: string;
-  selectedYearTo: string;
 }
 
-const Charts = ({ selectedStation, selectedYearFrom, selectedYearTo, selectedType }: Props) => {
+const Charts = ({ selectedStation, selectedType }: Props) => {
   const aggregation = useStationStore((state) => state.aggregation);
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const tickColor = isDark ? '#aaa' : '#444';
   const gridColor = isDark ? '#333' : '#e0e0e0';
-  const { data: monthlyData, isLoading: isLoadingMonthly, isError: isErrorMonthly } = useMonthlyRecords(selectedStation?.id, isMonthlyData, Number(selectedYearFrom), Number(selectedYearTo));
-  const { data: yearlyData, isLoading: isLoadingYearly, isError: isErrorYearly } = useYearlyRecords(selectedStation?.id, isMonthlyData, Number(selectedYearFrom), Number(selectedYearTo));
+  const { data: monthlyData, isLoading: isLoadingMonthly, isError: isErrorMonthly } = useMonthlyRecords(selectedStation?.id, isMonthlyData);
+  const { data: yearlyData, isLoading: isLoadingYearly, isError: isErrorYearly } = useYearlyRecords(selectedStation?.id, isMonthlyData);
 
   const data = useMemo(() => {
     if (!monthlyData || !yearlyData) return [];

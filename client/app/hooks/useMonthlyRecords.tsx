@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { getMonthlyRecords } from "../services/recordService";
+import { useStationStore } from "./useStationStore";
 import {
   AvailableDataType,
   MonthlyRecordType,
@@ -8,48 +9,51 @@ import {
   RecordDataType,
 } from "../types/recordTypes";
 
-const initialAvailableData = {
+const initialAvailableData: AvailableDataType = {
   years: [],
   dataType: [],
 };
 
-export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean, yearFrom?: number, yearTo?: number) => {
+export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => {
+  const yearFrom = useStationStore((s) => s.yearFrom);
+  const yearTo = useStationStore((s) => s.yearTo);
+
   const { data, isLoading, isError } = useQuery(
-    ["monthlyRecords", stationId, yearFrom, yearTo],
-    (): Promise<MonthlyRecordType[]> => getMonthlyRecords(stationId, yearFrom, yearTo),
+    ["monthlyRecords", stationId],
+    (): Promise<MonthlyRecordType[]> => getMonthlyRecords(stationId),
     { enabled: !!stationId && isMonthlyData }
   );
 
-  const availableData =
-    data?.reduce(
-      (acc: AvailableDataType, curr: MonthlyRecordType) => {
-        if (!acc.years.includes(curr.year)) {
-          acc.years.push(curr.year);
-        }
+  const availableData = useMemo(
+    () =>
+      data?.reduce(
+        (acc: AvailableDataType, curr: MonthlyRecordType) => {
+          if (!acc.years.includes(curr.year)) {
+            acc.years.push(curr.year);
+          }
 
-        if (!acc.dataType.includes(RecordDataType.flow) && curr.flow !== null && curr.flow !== undefined) {
-          acc.dataType.push(RecordDataType.flow);
-        }
+          if (!acc.dataType.includes(RecordDataType.flow) && curr.flow !== null && curr.flow !== undefined) {
+            acc.dataType.push(RecordDataType.flow);
+          }
 
-        if (!acc.dataType.includes(RecordDataType.level) && curr.level !== null && curr.level !== undefined) {
-          acc.dataType.push(RecordDataType.level);
-        }
+          if (!acc.dataType.includes(RecordDataType.level) && curr.level !== null && curr.level !== undefined) {
+            acc.dataType.push(RecordDataType.level);
+          }
 
-        if (
-          !acc.dataType.includes(RecordDataType.temperature) &&
-          curr.temperature !== null &&
-          curr.temperature !== undefined
-        ) {
-          acc.dataType.push(RecordDataType.temperature);
-        }
+          if (
+            !acc.dataType.includes(RecordDataType.temperature) &&
+            curr.temperature !== null &&
+            curr.temperature !== undefined
+          ) {
+            acc.dataType.push(RecordDataType.temperature);
+          }
 
-        return acc;
-      },
-      {
-        years: [],
-        dataType: [],
-      }
-    ) || initialAvailableData;
+          return acc;
+        },
+        { years: [], dataType: [] }
+      ) ?? initialAvailableData,
+    [data]
+  );
 
   const sortedData = useMemo(() => {
     if (!data) return [];
@@ -110,11 +114,18 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean, yea
     )
   ), [structuredData]);
 
+  const filteredData = useMemo(() => {
+    if (!yearFrom || !yearTo) return mergedByMonth;
+    const from = Number(yearFrom);
+    const to = Number(yearTo);
+    return mergedByMonth.filter((d) => d.year >= from && d.year <= to);
+  }, [mergedByMonth, yearFrom, yearTo]);
+
   return {
-    data: mergedByMonth,
+    data: filteredData,
     availableData: {
       ...availableData,
-      year: availableData.years.sort().reverse(),
+      years: [...availableData.years].sort((a, b) => a - b),
     },
     isLoading,
     isError,

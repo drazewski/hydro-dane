@@ -4,7 +4,8 @@ import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
 import styles from "./filters.module.css";
 import { useEffect, useMemo } from "react";
-import { useAvailableYears } from "../../hooks/useAvailableYears";
+import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
+import { useYearlyRecords } from "../../hooks/useYearlyRecords";
 
 interface Props {
   selectedStation: StationType;
@@ -29,17 +30,24 @@ const Filters = ({ selectedStation }: Props) => {
   const setMonthlyData = useStationStore((state) => state.setIsMonthlyData);
   const setSelectedDataType = useStationStore((state) => state.setSelectedDataType);
   const setAggregation = useStationStore((state) => state.setAggregation);
-  const { years, isLoading, isError } = useAvailableYears(selectedStation?.id, dataType);
+  const { availableData: monthlyAvailable, isLoading: loadingMonthly, isError: errorMonthly } = useMonthlyRecords(selectedStation.id, isMonthlyData);
+  const { availableData: yearlyAvailable, isLoading: loadingYearly, isError: errorYearly } = useYearlyRecords(selectedStation.id, isMonthlyData);
 
-  const sortedYears = useMemo(() => [...years].sort((a, b) => a - b), [years]);
+  const isLoading = isMonthlyData ? loadingMonthly : loadingYearly;
+  const isError = isMonthlyData ? errorMonthly : errorYearly;
+
+  const sortedYears = useMemo(() => {
+    const years = isMonthlyData ? monthlyAvailable.years : yearlyAvailable.years;
+    return [...years].sort((a, b) => a - b);
+  }, [isMonthlyData, monthlyAvailable.years, yearlyAvailable.years]);
 
   useEffect(() => {
-    if (!isLoading && sortedYears.length > 0) {
-      setYearFrom(sortedYears[0].toString());
-      setYearTo(sortedYears[sortedYears.length - 1].toString());
+    if (!isLoading && !yearFrom && sortedYears.length > 0) {
+      setYearFrom(String(sortedYears[0]));
+      setYearTo(String(sortedYears[sortedYears.length - 1]));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedStation.id, isLoading]);
+  }, [isLoading, yearFrom, sortedYears]);
 
   const yearsOptions = useMemo(
     () => sortedYears.map((y) => ({ label: y.toString(), value: y.toString() })),

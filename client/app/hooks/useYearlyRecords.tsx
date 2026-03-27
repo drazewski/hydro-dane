@@ -3,11 +3,15 @@ import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { YearlyRecordType, RecordDataType } from "../types/recordTypes";
 import { getYearlyRecords } from "../services/recordService";
+import { useStationStore } from "./useStationStore";
 
-export const useYearlyRecords = (stationId: number, isMonthlyData: boolean, yearFrom?: number, yearTo?: number) => {
+export const useYearlyRecords = (stationId: number, isMonthlyData: boolean) => {
+  const yearFrom = useStationStore((s) => s.yearFrom);
+  const yearTo = useStationStore((s) => s.yearTo);
+
   const { data, isLoading, isError } = useQuery(
-    ["yearlyRecords", stationId, yearFrom, yearTo],
-    (): Promise<YearlyRecordType[]> => getYearlyRecords(stationId, yearFrom, yearTo),
+    ["yearlyRecords", stationId],
+    (): Promise<YearlyRecordType[]> => getYearlyRecords(stationId),
     { enabled: !!stationId && !isMonthlyData }
   );
 
@@ -16,6 +20,13 @@ export const useYearlyRecords = (stationId: number, isMonthlyData: boolean, year
   }, [data]);
 
   const availableYears = useMemo(() => sorted.map((r) => r.year), [sorted]);
+
+  const filteredData = useMemo(() => {
+    if (!yearFrom || !yearTo) return sorted;
+    const from = Number(yearFrom);
+    const to = Number(yearTo);
+    return sorted.filter((d) => d.year >= from && d.year <= to);
+  }, [sorted, yearFrom, yearTo]);
 
   const hasType = (t: RecordDataType) => {
     switch (t) {
@@ -31,7 +42,7 @@ export const useYearlyRecords = (stationId: number, isMonthlyData: boolean, year
   };
 
   return {
-    data: sorted,
+    data: filteredData,
     availableData: { years: availableYears, hasType },
     isLoading,
     isError,

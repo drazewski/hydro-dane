@@ -9,8 +9,6 @@ import styles from './extremumTable.module.css';
 
 interface Props {
   selectedStation: StationType;
-  selectedYearFrom: string;
-  selectedYearTo: string;
 }
 
 type Extremum = { value: number | null; date: string };
@@ -39,14 +37,12 @@ const formatMonthly = (row: MonthlyStructuredRecordType) =>
 
 const formatYearly = (row: YearlyRecordType) => String(row.year);
 
-const ExtremumTable = ({ selectedStation, selectedYearFrom, selectedYearTo }: Props) => {
+const ExtremumTable = ({ selectedStation }: Props) => {
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
-  const { data: monthlyData } = useMonthlyRecords(
-    selectedStation.id, isMonthlyData, Number(selectedYearFrom), Number(selectedYearTo)
-  );
-  const { data: yearlyData } = useYearlyRecords(
-    selectedStation.id, isMonthlyData, Number(selectedYearFrom), Number(selectedYearTo)
-  );
+  const selectedYearFrom = useStationStore((s) => s.yearFrom);
+  const selectedYearTo = useStationStore((s) => s.yearTo);
+  const { data: monthlyData } = useMonthlyRecords(selectedStation.id, isMonthlyData);
+  const { data: yearlyData } = useYearlyRecords(selectedStation.id, isMonthlyData);
 
   const extremums = useMemo(() => {
     if (isMonthlyData) {
