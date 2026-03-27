@@ -116,8 +116,8 @@ const Filters = ({ selectedStation }: Props) => {
                 size="md"
                 label={isMonthlyData ? "Wartości miesięczne" : "Wartości roczne"}
                 styles={{ label: { fontSize: 14, whiteSpace: "nowrap" } }}
+                checked={isMonthlyData}
                 onChange={(event) => setMonthlyData(event.currentTarget.checked)}
-                value="yearly"
               />
             )}
           </div>
@@ -138,8 +138,8 @@ const Filters = ({ selectedStation }: Props) => {
                 size="md"
                 label={isMonthlyData ? "Miesięczne" : "Roczne"}
                 styles={{ label: { fontSize: 14, whiteSpace: "nowrap" } }}
+                checked={isMonthlyData}
                 onChange={(event) => setMonthlyData(event.currentTarget.checked)}
-                value="yearly"
               />
             )}
           </div>
