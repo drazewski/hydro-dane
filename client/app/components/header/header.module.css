@@ -16,10 +16,7 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
-}
-
-.titleIcon {
-  color: #1c7ed6;
+  color: light-dark(#1a1a1a, #ffffff);
 }
 
 .title {

@@ -1,4 +1,4 @@
-import { Checkbox, ComboboxItem, Loader, Select, Switch, Text } from "@mantine/core";
+import { Checkbox, ComboboxItem, Loader, Select, Switch, Text, useMantineColorScheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
@@ -13,7 +13,8 @@ interface Props {
 
 const Filters = ({ selectedStation }: Props) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
   const DATA_TYPE_OPTIONS = [
     { label: "Stan wody", value: RecordDataType.level },
     { label: "Przepływ", value: RecordDataType.flow },
@@ -30,8 +31,8 @@ const Filters = ({ selectedStation }: Props) => {
   const setMonthlyData = useStationStore((state) => state.setIsMonthlyData);
   const setSelectedDataType = useStationStore((state) => state.setSelectedDataType);
   const setAggregation = useStationStore((state) => state.setAggregation);
-  const { availableData: monthlyAvailable, isLoading: loadingMonthly, isError: errorMonthly } = useMonthlyRecords(selectedStation.id, isMonthlyData);
-  const { availableData: yearlyAvailable, isLoading: loadingYearly, isError: errorYearly } = useYearlyRecords(selectedStation.id, isMonthlyData);
+  const { data: monthlyData, availableData: monthlyAvailable, isLoading: loadingMonthly, isError: errorMonthly } = useMonthlyRecords(selectedStation.id, isMonthlyData);
+  const { data: yearlyData, availableData: yearlyAvailable, isLoading: loadingYearly, isError: errorYearly } = useYearlyRecords(selectedStation.id, isMonthlyData);
 
   const isLoading = isMonthlyData ? loadingMonthly : loadingYearly;
   const isError = isMonthlyData ? errorMonthly : errorYearly;
@@ -45,6 +46,11 @@ const Filters = ({ selectedStation }: Props) => {
     if (!isLoading && !yearFrom && sortedYears.length > 0) {
       setYearFrom(String(sortedYears[0]));
       setYearTo(String(sortedYears[sortedYears.length - 1]));
+
+      const hasLevel = isMonthlyData
+        ? monthlyData.some((r) => r.avgLevel != null)
+        : yearlyData.some((r) => r.avgLevel != null);
+      setSelectedDataType(hasLevel ? RecordDataType.level : RecordDataType.flow);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, yearFrom, sortedYears]);
@@ -139,7 +145,7 @@ const Filters = ({ selectedStation }: Props) => {
             >
               <Checkbox value="max" label={isMobile ? "Maks." : "Maksymalne"} color="red"/>
               <Checkbox value="avg" label={isMobile ? "Śr." : "Średnie"} color="blue"/>
-              <Checkbox value="min" label={isMobile ? "Min." : "Minimalne"} color="black"/>
+              <Checkbox value="min" label={isMobile ? "Min." : "Minimalne"} color={isDark ? 'white' : 'black'} iconColor={isDark ? 'dark.8' : 'white'}/>
             </Checkbox.Group>
             {isMobile && (
               <Switch
