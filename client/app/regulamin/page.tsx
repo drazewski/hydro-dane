@@ -1,10 +1,14 @@
+import type { Metadata } from "next";
 import { Text, Title, Stack } from "@mantine/core";
 import Header from "../components/header/Header";
 import { Footer } from "../components/footer/Footer";
 import styles from "../page.module.css";
 
-export const metadata = {
-  title: "Regulamin strony – HydroDane",
+export const metadata: Metadata = {
+  title: "Regulamin strony",
+  alternates: {
+    canonical: "https://hydro-dane.vercel.app/regulamin",
+  },
 };
 
 export default function RegulaminPage() {

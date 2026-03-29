@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { Open_Sans } from "next/font/google";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { theme } from "../theme";
+import type { Metadata } from "next";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -22,14 +23,58 @@ const juraBold = localFont({
   weight: "600",
 });
 
-export const metadata = {
-  title: "HydroDane - Wykresy archiwalnych danych hydrologicznych",
-  description: "Hydrologiczne dane archiwalne pochodzące z IMGW-PIB w postaci wykresów.",
+const BASE_URL = "https://hydro-dane.vercel.app";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
+    template: "%s – HydroDane",
+  },
+  description:
+    "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB: poziom wody, przepływ, temperatura wody.",
+  keywords: [
+    "dane hydrologiczne",
+    "hydrologia",
+    "IMGW",
+    "IMGW-PIB",
+    "poziom wody",
+    "przepływ wody",
+    "temperatura wody",
+    "stacje hydrologiczne",
+    "wykresy hydrologiczne",
+    "archiwalne dane hydrologiczne",
+    "rzeki Polska",
+  ],
+  authors: [{ name: "HydroDane" }],
+  creator: "HydroDane",
+  alternates: {
+    canonical: BASE_URL,
+  },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    url: BASE_URL,
+    siteName: "HydroDane",
+    title: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
+    description:
+      "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB: poziom wody, przepływ, temperatura wody.",
+  },
+  twitter: {
+    card: "summary",
+    title: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
+    description:
+      "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pl" suppressHydrationWarning>
       <head>
         <ColorSchemeScript />
         <link rel="shortcut icon" href="/favicon.svg" />
