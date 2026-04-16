@@ -31,6 +31,7 @@ export const metadata: Metadata = {
     default: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
     template: "%s – HydroDane",
   },
+  applicationName: "HydroDane",
   description:
     "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB: poziom wody, przepływ, temperatura wody.",
   keywords: [
@@ -48,6 +49,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "HydroDane" }],
   creator: "HydroDane",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.svg",
+    apple: "/icon.svg",
+  },
   alternates: {
     canonical: BASE_URL,
   },
@@ -81,6 +91,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
+        />
+        <meta name="application-name" content="HydroDane" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "HydroDane",
+              alternateName: "Hydro Dane",
+              url: BASE_URL,
+              description:
+                "Wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych.",
+              inLanguage: "pl-PL",
+            }),
+          }}
         />
       </head>
       <body className={`${openSans.variable} ${juraMedium.variable} ${juraBold.variable}`}>
