@@ -42,6 +42,9 @@ export interface StationType {
   name: string;
   waterName: string;
   fullName?: string;
+  hasTemperatureData: boolean;
+  hasFreshTemperatureData: boolean;
+  hasFreshLevelData: boolean;
 }
 
 export enum RecordDataType {

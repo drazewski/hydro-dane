@@ -1,29 +1,42 @@
-import stations from '../assets/data/stations.json';
+import { useMemo } from 'react';
+import stationsData from '../assets/data/stations.json';
 import { StationType } from '../types/recordTypes';
 
 interface UseStationsType {
   stations: StationType[];
+  freshYear: number;
 }
 
 export const useStations = (): UseStationsType => {
-  const data = Array.isArray(stations.stations) ? stations.stations : [];
-
-  const reducedStations = data.reduce((acc: StationType[], curr) => {
-    if (typeof curr.waterName !== "string" || typeof curr.name !== "string") return acc;
-    if (curr.waterName.includes('Jez.')) return acc;
-    const waterName = curr.waterName.replace(/[0-9()]/g, "").trim();
-    const stationName = curr.name.trim();
-    const fullName = `${waterName} (${stationName})`;
-    acc.push({
-      id: curr.id,
-      name: stationName,
-      fullName,
-      waterName,
-    });
-    return acc;
-  }, []);
+  const stations = useMemo(
+    () => {
+      const data = Array.isArray(stationsData.stations) ? stationsData.stations : [];
+      return data.reduce((acc: StationType[], curr) => {
+        if (typeof curr.waterName !== 'string' || typeof curr.name !== 'string') return acc;
+        if (curr.waterName.includes('Jez.')) return acc;
+        const waterName = curr.waterName.replace(/[0-9()]/g, '').trim();
+        const stationName = curr.name.trim();
+        const fullName = `${waterName} (${stationName})`;
+        acc.push({
+          id: curr.id,
+          name: stationName,
+          fullName,
+          waterName,
+          hasTemperatureData: Boolean(curr.hasTemperatureData),
+          hasFreshTemperatureData: Boolean(curr.hasFreshTemperatureData),
+          hasFreshLevelData: Boolean(curr.hasFreshLevelData),
+        });
+        return acc;
+      }, []);
+    },
+    []
+  );
 
   return {
-    stations: reducedStations.sort((a, b) => a.waterName.localeCompare(b.waterName)),
-  }
-}
+    freshYear:
+      typeof stationsData.freshYear === 'number' && Number.isFinite(stationsData.freshYear)
+        ? stationsData.freshYear
+        : 2024,
+    stations: [...stations].sort((a, b) => a.waterName.localeCompare(b.waterName)),
+  };
+};
