@@ -1,11 +1,21 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { ActionIcon, CloseButton, ComboboxItem, Group, Select, Text, Tooltip } from '@mantine/core';
 import { IconPencil, IconX } from '@tabler/icons-react';
 import { useStations } from '../../hooks/useStations';
 import { useStationStore } from '../../hooks/useStationStore';
+import StationStatusLegend from './StationStatusLegend';
 import StationStatusIcons from './StationStatusIcons';
 import styles from './stationForm.module.css';
+
+const INITIAL_VISIBLE_OPTIONS = 120;
+const OPTIONS_PAGE_SIZE = 120;
+const LOAD_MORE_THRESHOLD_PX = 160;
+const LOADING_OPTION_VALUE = '__loading_more_stations__';
+
+type StationOption = ComboboxItem & {
+  searchText: string;
+};
 
 const normalizeStationSearch = (value: string) =>
   value
@@ -20,12 +30,22 @@ const StationForm = () => {
   const setSelectedStation = useStationStore((state) => state.setSelectedStation);
   const [searchValue, setSearchValue] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [visibleOptionsLimit, setVisibleOptionsLimit] = useState(INITIAL_VISIBLE_OPTIONS);
+  const deferredSearchValue = useDeferredValue(searchValue);
+  const normalizedDeferredSearchValue = normalizeStationSearch(deferredSearchValue);
 
-  const stationOptions = useMemo<ComboboxItem[]>(
+  useEffect(() => {
+    setVisibleOptionsLimit(INITIAL_VISIBLE_OPTIONS);
+  }, [normalizedDeferredSearchValue]);
+
+  const stationOptions = useMemo<StationOption[]>(
     () =>
       stations.map((station) => ({
         value: station.id.toString(),
         label: station.fullName || '',
+        searchText: normalizeStationSearch(
+          `${station.id} ${station.fullName || ''} ${station.name} ${station.waterName}`
+        ),
       })),
     [stations]
   );
@@ -35,8 +55,45 @@ const StationForm = () => {
     [stations]
   );
 
+  const filteredOptions = useMemo(() => {
+    if (!normalizedDeferredSearchValue) {
+      return stationOptions;
+    }
+
+    return stationOptions.filter((option) => option.searchText.includes(normalizedDeferredSearchValue));
+  }, [normalizedDeferredSearchValue, stationOptions]);
+
+  const hasMoreOptions = filteredOptions.length > visibleOptionsLimit;
+
+  const visibleOptions = useMemo<ComboboxItem[]>(() => {
+    const slicedOptions = filteredOptions.slice(0, visibleOptionsLimit);
+
+    if (!hasMoreOptions) {
+      return slicedOptions;
+    }
+
+    return [
+      ...slicedOptions,
+      {
+        value: LOADING_OPTION_VALUE,
+        label: 'Wczytywanie kolejnych stacji...',
+        disabled: true,
+      },
+    ];
+  }, [filteredOptions, hasMoreOptions, visibleOptionsLimit]);
+
+  const loadMoreOptions = () => {
+    if (!hasMoreOptions) {
+      return;
+    }
+
+    setVisibleOptionsLimit((currentLimit) =>
+      Math.min(currentLimit + OPTIONS_PAGE_SIZE, filteredOptions.length)
+    );
+  };
+
   const handleSelect = (newValue: string | null) => {
-    if (!newValue) {
+    if (!newValue || newValue === LOADING_OPTION_VALUE) {
       return;
     }
 
@@ -85,7 +142,7 @@ const StationForm = () => {
       <Select
         searchable
         value={null}
-        data={stationOptions}
+        data={visibleOptions}
         placeholder="Wpisz nazwę rzeki, miejscowości lub numer stacji..."
         searchValue={searchValue}
         autoFocus={isEditing}
@@ -93,38 +150,32 @@ const StationForm = () => {
         maxDropdownHeight={320}
         onSearchChange={setSearchValue}
         onChange={handleSelect}
-        filter={({ options, search, limit }) => {
-          const normalizedSearch = normalizeStationSearch(search);
-          const matchedOptions: ComboboxItem[] = [];
+        onDropdownOpen={() => setVisibleOptionsLimit(INITIAL_VISIBLE_OPTIONS)}
+        filter={({ options }) => options}
+        scrollAreaProps={{
+          viewportProps: {
+            onScroll: (event) => {
+              const target = event.currentTarget;
+              const remainingScroll =
+                target.scrollHeight - target.scrollTop - target.clientHeight;
 
-          for (const option of options) {
-            if ('group' in option) {
-              continue;
-            }
-
-            const station = stationLookup.get(option.value);
-            if (!station) {
-              continue;
-            }
-
-            if (
-              !normalizedSearch ||
-              normalizeStationSearch(option.label).includes(normalizedSearch) ||
-              normalizeStationSearch(station.name).includes(normalizedSearch) ||
-              normalizeStationSearch(station.waterName).includes(normalizedSearch) ||
-              station.id.toString().includes(normalizedSearch)
-            ) {
-              matchedOptions.push(option);
-            }
-
-            if (matchedOptions.length >= limit) {
-              break;
-            }
-          }
-
-          return matchedOptions;
+              if (remainingScroll <= LOAD_MORE_THRESHOLD_PX) {
+                loadMoreOptions();
+              }
+            },
+          },
         }}
         renderOption={({ option }) => {
+          if (option.value === LOADING_OPTION_VALUE) {
+            return (
+              <div className={styles.loadingOption}>
+                <Text size="sm" c="dimmed" fw={500} ta="center">
+                  {option.label}
+                </Text>
+              </div>
+            );
+          }
+
           const station = stationLookup.get(option.value);
 
           if (!station) {
@@ -155,6 +206,7 @@ const StationForm = () => {
         }
         rightSectionPointerEvents="all"
       />
+      <StationStatusLegend freshYear={freshYear} />
     </div>
   );
 };

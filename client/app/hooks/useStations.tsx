@@ -11,7 +11,7 @@ export const useStations = (): UseStationsType => {
   const stations = useMemo(
     () => {
       const data = Array.isArray(stationsData.stations) ? stationsData.stations : [];
-      return data.reduce((acc: StationType[], curr) => {
+      const transformedStations = data.reduce((acc: StationType[], curr) => {
         if (typeof curr.waterName !== 'string' || typeof curr.name !== 'string') return acc;
         if (curr.waterName.includes('Jez.')) return acc;
         const waterName = curr.waterName.replace(/[0-9()]/g, '').trim();
@@ -28,6 +28,10 @@ export const useStations = (): UseStationsType => {
         });
         return acc;
       }, []);
+
+      transformedStations.sort((a, b) => a.waterName.localeCompare(b.waterName));
+
+      return transformedStations;
     },
     []
   );
@@ -37,6 +41,6 @@ export const useStations = (): UseStationsType => {
       typeof stationsData.freshYear === 'number' && Number.isFinite(stationsData.freshYear)
         ? stationsData.freshYear
         : 2024,
-    stations: [...stations].sort((a, b) => a.waterName.localeCompare(b.waterName)),
+    stations,
   };
 };

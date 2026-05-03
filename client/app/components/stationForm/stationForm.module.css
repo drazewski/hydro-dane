@@ -13,12 +13,39 @@
   width: 100%;
 }
 
+.legend {
+  margin-top: 10px;
+}
+
+.legendTitle {
+  margin-bottom: 6px;
+}
+
+.legendItems {
+  display: flex;
+  flex-direction: column;
+  gap: 10px 16px;
+}
+
 .optionText {
   min-width: 0;
+}
+
+.loadingOption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
 }
 
 @media (max-width: 768px) {
   .editButton {
     display: none;
+  }
+
+  .legendItems {
+    flex-direction: column;
+    gap: 8px;
   }
 }

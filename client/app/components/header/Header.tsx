@@ -25,7 +25,7 @@ const Header = () => {
           {colorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
         </ActionIcon>
       </div>
-      <h4 className={styles.subtitle}>Wykresy archiwalnych danych hydrologicznych</h4>
+      <h4 className={styles.subtitle}>Interaktywne wykresy archiwalnych danych hydrologicznych. Dane IMGW-PIB: poziom wody, przepływ, temperatura wody.</h4>
     </header>
   );
 };
