@@ -104,14 +104,20 @@ node server.js
 4. Start the server and the frontend:
 
 ```bash
-# server (from project root)
-node server.js
-# or with nodemon
-nodemon server.js
+# both at once (recommended)
+npm run dev:all
+```
 
-# client (new terminal)
-cd client
+This uses `concurrently` to start the backend (nodemon) and the Next.js frontend in a single terminal, with color-coded output labels (`server` / `client`).
+
+You can also start them separately:
+
+```bash
+# server only
 npm run dev
+
+# client only (new terminal)
+npm run dev:client
 ```
 
 The server defaults to port `8080` and the Next.js app runs on `3000`.
