@@ -39,6 +39,9 @@ export function Footer() {
             <Anchor href="/regulamin" size="sm" c="dimmed">
               Regulamin strony
             </Anchor>
+            <Anchor href="/prywatnosc" size="sm" c="dimmed">
+              Prywatność
+            </Anchor>
           </Group>
           <Text size="xs" c="dimmed">
             HydroDane – wszystkie prawa do wizualizacji i wykresów zastrzeżone. Dane źródłowe: IMGW-PIB.

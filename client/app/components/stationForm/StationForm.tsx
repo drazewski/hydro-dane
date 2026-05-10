@@ -6,6 +6,7 @@ import { useStations } from '../../hooks/useStations';
 import { useStationStore } from '../../hooks/useStationStore';
 import StationStatusLegend from './StationStatusLegend';
 import StationStatusIcons from './StationStatusIcons';
+import { trackStationSelected } from '../analytics/analyticsEvents';
 import styles from './stationForm.module.css';
 
 const INITIAL_VISIBLE_OPTIONS = 120;
@@ -27,6 +28,7 @@ const normalizeStationSearch = (value: string) =>
 const StationForm = () => {
   const { stations, freshYear } = useStations();
   const selectedStation = useStationStore((state) => state.station);
+  const dataType = useStationStore((state) => state.dataType);
   const setSelectedStation = useStationStore((state) => state.setSelectedStation);
   const [searchValue, setSearchValue] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -101,6 +103,7 @@ const StationForm = () => {
 
     if (newSelectedStation) {
       setSelectedStation(newSelectedStation);
+      trackStationSelected(newSelectedStation, dataType);
       setSearchValue('');
       setIsEditing(false);
     }

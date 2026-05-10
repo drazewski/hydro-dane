@@ -6,6 +6,7 @@ import styles from "./filters.module.css";
 import { useEffect, useMemo } from "react";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
 import { useYearlyRecords } from "../../hooks/useYearlyRecords";
+import { trackDataSelected } from "../analytics/analyticsEvents";
 
 interface Props {
   selectedStation: StationType;
@@ -82,6 +83,16 @@ const Filters = ({ selectedStation }: Props) => {
     setYearTo(newTo);
   };
 
+  const handleDataTypeChange = (value: string | null) => {
+    if (!value || value === dataType) {
+      return;
+    }
+
+    const nextDataType = value as RecordDataType;
+    setSelectedDataType(nextDataType);
+    trackDataSelected(selectedStation, nextDataType);
+  };
+
   return (
     <div>
       {isLoading ? (
@@ -95,7 +106,7 @@ const Filters = ({ selectedStation }: Props) => {
             <Select
               data={DATA_TYPE_OPTIONS}
               value={dataType}
-              onChange={(v) => v && setSelectedDataType(v as RecordDataType)}
+              onChange={handleDataTypeChange}
               styles={{ input: { height: 25, minHeight: 25 } }}
               w={128}
             />

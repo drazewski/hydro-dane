@@ -5,6 +5,8 @@ import { Open_Sans } from "next/font/google";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { theme } from "../theme";
 import type { Metadata } from "next";
+import MatomoPageViewTracker from "./components/analytics/MatomoPageViewTracker";
+import AnalyticsConsentBanner from "./components/analytics/AnalyticsConsentBanner";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -113,6 +115,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MantineProvider theme={theme} defaultColorScheme="light">
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             {children}
+            <AnalyticsConsentBanner />
+            <MatomoPageViewTracker />
           </div>
         </MantineProvider>
       </body>

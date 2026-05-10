@@ -1,0 +1,17 @@
+.banner {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  width: min(420px, calc(100vw - 32px));
+  padding: 18px;
+  background: color-mix(in srgb, var(--mantine-color-body) 94%, white);
+}
+
+@media (max-width: 600px) {
+  .banner {
+    right: 16px;
+    bottom: 16px;
+    padding: 16px;
+  }
+}
