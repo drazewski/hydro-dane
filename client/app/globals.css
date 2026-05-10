@@ -13,7 +13,7 @@ body {
   background: var(--mantine-color-body);
   width: 100vw;
   max-width: 1200px;
-  margin: auto;
+  margin: auto !important;
   padding: 0 10px;
   font-family: var(--font-open-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
