@@ -1,62 +1,83 @@
-# Hydro Data Charts
+# HydroDane
 
-**Hydro Data Charts** is a small data visualization project: a Node/Express + Sequelize API backed by MySQL that exposes hydrological monthly and yearly aggregates, and a Next.js front-end that visualizes station data with charts and filters.
+**HydroDane** to aplikacja do przeglądania i wizualizacji archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Projekt składa się z API Node.js/Express z bazą MySQL oraz frontendu Next.js prezentującego wykresy, filtry i zestawienia ekstremów.
 
----
+## Co robi aplikacja
 
-## 🔧 Tech stack
+- pozwala wyszukać stację pomiarową po nazwie rzeki, miejscowości lub identyfikatorze stacji,
+- wyświetla archiwalne dane miesięczne oraz agregaty roczne,
+- pokazuje wartości minimalne, średnie i maksymalne,
+- obsługuje trzy typy danych: stan wody, przepływ i temperaturę wody,
+- pozwala ograniczyć wykres do wybranego zakresu lat,
+- prezentuje tabelę ekstremów dla wybranej stacji i zakresu.
+
+## Źródło danych
+
+Dane prezentowane w aplikacji pochodzą z publicznych zasobów Instytutu Meteorologii i Gospodarki Wodnej - Państwowego Instytutu Badawczego (IMGW-PIB), w szczególności z katalogu publicznych danych hydrologicznych:
+
+https://danepubliczne.imgw.pl/data/dane_pomiarowo_obserwacyjne/dane_hydrologiczne/miesieczne/
+
+Dane źródłowe są publikowane przez IMGW-PIB jako pliki CSV. W aplikacji są importowane do bazy MySQL i przetwarzane na potrzeby wykresów oraz agregacji.
+
+Serwis **nie jest oficjalnym serwisem IMGW-PIB**, nie jest powiązany, afiliowany ani sponsorowany przez IMGW-PIB. HydroDane jest niezależną warstwą wizualizacji danych.
+
+## Przetwarzanie danych
+
+Backend wykonuje podstawowe porządkowanie danych przed zwróceniem ich do frontendu:
+
+- wartości sentinelowe stanu wody `9999` są traktowane jako brak danych,
+- temperatury wody powyżej `50°C` są traktowane jako brak danych,
+- agregaty roczne są liczone osobno dla wartości minimalnych, średnich i maksymalnych.
+
+Aplikacja jest technicznie agnostyczna względem źródła danych: API i frontend pracują na danych znajdujących się w lokalnej bazie MySQL. Obecnie zakładanym i opisanym źródłem są publiczne dane IMGW-PIB, ale ten sam mechanizm może obsługiwać inne dane, jeśli zostaną zaimportowane do zgodnego schematu.
+
+## Prywatność
+
+Frontend zawiera stronę prywatności i mechanizm zgody na anonimową analitykę. Analityka służy do sprawdzania, które części strony są używane oraz jakie dane są najczęściej przeglądane.
+
+Zgodnie z aktualną implementacją:
+
+- analityka jest anonimowa,
+- konfiguracja analityki nie używa plików cookie,
+- wybór użytkownika jest zapisywany lokalnie w przeglądarce,
+- użytkownik może później zmienić decyzję w ustawieniach prywatności.
+
+## Stack technologiczny
 
 - Backend: Node.js, Express, Sequelize, MySQL
 - Frontend: Next.js, React, Mantine, Recharts
-- HTTP client: Axios; data fetching: react-query
+- Pobieranie danych: Axios, react-query
+- Stan UI: Zustand
 
----
+## Wymagania
 
-## 🚀 Features
+- Node.js 18 lub nowszy
+- MySQL
+- dane dostępowe do bazy w pliku `.env`
 
-- REST API to query stations, monthly records and yearly aggregates
-- Data cleaning logic (sentinel values, month→year correction for Nov/Dec)
-- Frontend UI for selecting station, years and chart type
-- Aggregated yearly metrics (min/avg/max) for level, flow, temperature
+## Uruchomienie lokalne
 
----
-
-## ⚙️ Requirements
-
-- Node.js 18+ (or compatible)
-- MySQL server and database credentials provided through environment variables
-
----
-
-## 🧭 Setup (Local)
-
-1. Clone the repo:
+1. Zainstaluj zależności backendu:
 
 ```bash
-git clone <repo-url>
-cd hydro
+npm install
 ```
 
-2. Install dependencies (server + client):
+2. Zainstaluj zależności frontendu:
 
 ```bash
-# server
-npm install
-
-# client
 cd client
 npm install
 cd ..
 ```
 
-3. Database: create a MySQL database and provide credentials through environment variables.
-   - For local development, copy `.env.example` to `.env` and fill in your database credentials.
+3. Przygotuj konfigurację bazy:
 
 ```bash
 cp .env.example .env
 ```
 
-   - Required variables:
+Wymagane zmienne:
 
 ```bash
 DB_HOST=localhost
@@ -66,7 +87,7 @@ DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 ```
 
-   - Optional variables:
+Opcjonalnie:
 
 ```bash
 DB_DIALECT=mysql
@@ -76,7 +97,7 @@ DB_POOL_ACQUIRE=30000
 DB_POOL_IDLE=10000
 ```
 
-   - Example local `.env`:
+Przykład lokalnej konfiguracji:
 
 ```bash
 DB_HOST=localhost
@@ -86,103 +107,105 @@ DB_USER=root
 DB_PASSWORD=your_db_password
 ```
 
-   - Example local start:
+4. Uruchom backend i frontend:
 
 ```bash
-node server.js
-```
-
-**Importing data**
-
-- The database must be populated with the hydrological data. Originally I use IMGW data (published as .csv files) from IMGW. You can download monthly CSV files from:
-  https://danepubliczne.imgw.pl/data/dane_pomiarowo_obserwacyjne/dane_hydrologiczne/miesieczne/
-- Import them into your MySQL database (`hydro_monthly`, `stations`) using tools such as `LOAD DATA INFILE`, custom import scripts, or a migration/import script of your choice.
-
-- For testing how the app works and charts are created you can start with some example data. The repository includes an `example_data` folder containing sample CSV file(s) (e.g. `example_data/hydro_monthly_example.csv`) that you can import into a newly created database to explore the UI and charts.
-
-
-4. Start the server and the frontend:
-
-```bash
-# both at once (recommended)
 npm run dev:all
 ```
 
-This uses `concurrently` to start the backend (nodemon) and the Next.js frontend in a single terminal, with color-coded output labels (`server` / `client`).
-
-You can also start them separately:
+Możesz też uruchomić je osobno:
 
 ```bash
-# server only
+# backend
 npm run dev
 
-# client only (new terminal)
+# frontend
 npm run dev:client
 ```
 
-The server defaults to port `8080` and the Next.js app runs on `3000`.
+Domyślnie backend działa na porcie `8080`, a frontend Next.js na porcie `3000`.
 
-> Tip: set `NEXT_PUBLIC_VITE_BASE_URL` to `http://localhost:8080` for the frontend to point at the local API.
+Frontend powinien wskazywać na API przez zmienną:
 
----
+```bash
+NEXT_PUBLIC_VITE_BASE_URL=http://localhost:8080
+```
 
-## 📡 API Reference
+## Import danych
 
-Base URL: `http://localhost:8080/api`
+Baza musi zawierać dane hydrologiczne w tabelach używanych przez aplikację:
 
-### Stations
-- GET `/stations`
-  - Returns all measurement stations.
-  - Example: `curl http://localhost:8080/api/stations`
+- `hydro_monthly` - miesięczne rekordy hydrologiczne,
+- `stations` - lista stacji pomiarowych.
 
-### Monthly records
-- GET `/records/monthly/:stationId` — all monthly records for a station (month→year correction applied)
-- GET `/records/monthly/:stationId/:year` — monthly records for a given year (compatible legacy endpoint)
-- Range mode: `/records/monthly/:stationId?from=YYYY&to=YYYY` — returns records in the requested (corrected) year range
+Dane można zaimportować z plików CSV IMGW-PIB przy użyciu `LOAD DATA INFILE`, własnego skryptu importującego albo migracji.
 
-Example: `curl "http://localhost:8080/api/records/monthly/123?from=1990&to=2000"`
+Repozytorium zawiera przykładowe pliki w katalogu `example_data`, między innymi:
 
-### Yearly aggregates
-- GET `/records/yearly/:stationId` — returns yearly aggregates (min/avg/max for level/flow/temperature)
-- GET `/records/yearly/:stationId?from=YYYY&to=YYYY` — filter by corrected year range
-- GET `/records/yearly/:stationId/:year` — single-year aggregate
-- GET `/records/yearly/withTemperature` — returns yearly temperature data for stations that have temperature in year 2000
+- `example_data/hydro_monthly_example.csv`,
+- `example_data/stations_example.csv`.
 
-Example: `curl "http://localhost:8080/api/records/yearly/123?from=1990&to=2000"`
+Można ich użyć do szybkiego sprawdzenia działania wykresów i interfejsu.
 
----
+## API
 
-## 🧪 Development notes
+Bazowy adres lokalnego API:
 
-- The server calls `db.sequelize.sync()` on startup — tables will be created/checked automatically if models differ from DB.
-- Monthly data processing trims sentinel values (e.g., level `9999`) and treats temperatures > 50°C as invalid (NULL).
-- Calendar correction: months 11 (Nov) and 12 (Dec) are counted toward the previous year for aggregation logic.
-- CORS whitelist is defined in `server.js` (localhost:3000, 8081, 5173). Update if you run the client on another origin.
+```text
+http://localhost:8080/api
+```
 
----
+### Stacje
 
-## 🧭 Frontend
+```http
+GET /stations
+```
 
-- Located in `/client` (Next.js app)
-- To run: `cd client && npm run dev`
-- Frontend expects `NEXT_PUBLIC_VITE_BASE_URL` pointing to your API base URL (e.g. `http://localhost:8080`).
+Zwraca listę stacji pomiarowych.
 
----
+Przykład:
 
-## 💡 Contributing
+```bash
+curl http://localhost:8080/api/stations
+```
 
-Feel free to open issues or PRs. If you plan to make breaking changes to the DB schema, consider adding migrations instead of relying only on `sequelize.sync()`.
+### Dane miesięczne
 
-**Hosting**
+```http
+GET /records/monthly/:stationId
+GET /records/monthly/:stationId/:year
+GET /records/monthly/:stationId?from=YYYY&to=YYYY
+```
 
-- For Render, add the same `DB_*` variables in the service environment settings.
+Zwraca miesięczne rekordy dla stacji, opcjonalnie ograniczone do roku lub zakresu lat.
 
----
+Przykład:
 
-## 📜 License
+```bash
+curl "http://localhost:8080/api/records/monthly/123?from=1990&to=2000"
+```
 
-This project is licensed under **GPL-3.0-only** (see `package.json`).
+### Agregaty roczne
 
----
+```http
+GET /records/yearly/:stationId
+GET /records/yearly/:stationId/:year
+GET /records/yearly/:stationId?from=YYYY&to=YYYY
+GET /records/yearly/withTemperature
+```
 
-**Author:** Łukasz Drazewski
+Zwraca roczne wartości minimalne, średnie i maksymalne dla stanu wody, przepływu oraz temperatury wody.
+
+Przykład:
+
+```bash
+curl "http://localhost:8080/api/records/yearly/123?from=1990&to=2000"
+```
+
+## Licencja
+
+Projekt jest udostępniany na licencji **GPL-3.0-only**.
+
+## Autor
+
+Luk Drazewski
