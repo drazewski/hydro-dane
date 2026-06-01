@@ -3,7 +3,7 @@ import "./globals.css";
 import localFont from "next/font/local";
 import { Open_Sans } from "next/font/google";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
-import { theme } from "../theme";
+import { cssVariablesResolver, theme } from "../theme";
 import type { Metadata } from "next";
 import MatomoPageViewTracker from "./components/analytics/MatomoPageViewTracker";
 import AnalyticsConsentBanner from "./components/analytics/AnalyticsConsentBanner";
@@ -112,7 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${openSans.variable} ${juraMedium.variable} ${juraBold.variable}`}>
-        <MantineProvider theme={theme} defaultColorScheme="light">
+        <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="light">
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             {children}
             <AnalyticsConsentBanner />
