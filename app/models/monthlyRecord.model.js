@@ -27,7 +27,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       // id: false // Disable automatic 'id' field
     }, {
-      tableName: 'hydro_monthly',
+      tableName: 'hydro_monthly_backup_2023',
       timestamps: false, 
       id: false,
     })
