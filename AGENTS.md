@@ -35,7 +35,7 @@ npm run lint
 - Models: `app/models/`
 - Controllers: `app/controllers/`
 - Routes: `app/routes/`
-- Main hydrological table: `hydro_monthly_backup_2023`
+- Main hydrological table: `hydro_monthly`
 
 ### Frontend
 
