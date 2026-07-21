@@ -47,9 +47,9 @@ export const useYearlyRecords = (stationId: number, isMonthlyData: boolean) => {
       years: sorted.map((r) => r.year),
       dataType,
       yearsByType: {
-        [RecordDataType.level]: [...new Set(yearsByType[RecordDataType.level] ?? [])],
-        [RecordDataType.flow]: [...new Set(yearsByType[RecordDataType.flow] ?? [])],
-        [RecordDataType.temperature]: [...new Set(yearsByType[RecordDataType.temperature] ?? [])],
+        [RecordDataType.level]: Array.from(new Set(yearsByType[RecordDataType.level] ?? [])),
+        [RecordDataType.flow]: Array.from(new Set(yearsByType[RecordDataType.flow] ?? [])),
+        [RecordDataType.temperature]: Array.from(new Set(yearsByType[RecordDataType.temperature] ?? [])),
       },
     };
   }, [sorted]);
