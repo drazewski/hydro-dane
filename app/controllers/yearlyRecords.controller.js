@@ -29,6 +29,13 @@ function parseRange(req) {
 const correctedYearSql = `CASE WHEN month IN (11,12) THEN year - 1 ELSE year END`;
 
 const tempValid = `temperature <= 50`;
+const levelValid = `level IS NOT NULL AND level != 9999`;
+const flowValid = `flow IS NOT NULL`;
+
+const completeYearAggregate = (aggregateFn, valueExpression, validCondition) =>
+  Sequelize.literal(
+    `CASE WHEN COUNT(DISTINCT CASE WHEN ${validCondition} THEN h_month END) = 12 THEN ${aggregateFn}(${valueExpression}) END`
+  );
 
 /**
  * Zestaw agregacji rocznych z warunkami po typie (1=min, 2=avg, 3=max)
@@ -40,19 +47,19 @@ const yearlyAttributes = [
   ["station_id", "stationId"],
 
   // LEVEL
-  [Sequelize.fn("MIN", Sequelize.literal(`CASE WHEN type=1 THEN NULLIF(level, 9999) END`)), "minLevel"],
-  [Sequelize.fn("MAX", Sequelize.literal(`CASE WHEN type=3 THEN NULLIF(level, 9999) END`)), "maxLevel"],
-  [Sequelize.fn("AVG", Sequelize.literal(`CASE WHEN type=2 THEN NULLIF(level, 9999) END`)), "avgLevel"],
+  [completeYearAggregate("MIN", `CASE WHEN type=1 THEN NULLIF(level, 9999) END`, `type=1 AND ${levelValid}`), "minLevel"],
+  [completeYearAggregate("MAX", `CASE WHEN type=3 THEN NULLIF(level, 9999) END`, `type=3 AND ${levelValid}`), "maxLevel"],
+  [completeYearAggregate("AVG", `CASE WHEN type=2 THEN NULLIF(level, 9999) END`, `type=2 AND ${levelValid}`), "avgLevel"],
 
   // FLOW (jeśli masz sentinel dla flow, wstaw NULLIF(flow, XXX))
-  [Sequelize.fn("MIN", Sequelize.literal(`CASE WHEN type=1 THEN flow END`)), "minFlow"],
-  [Sequelize.fn("MAX", Sequelize.literal(`CASE WHEN type=3 THEN flow END`)), "maxFlow"],
-  [Sequelize.fn("AVG", Sequelize.literal(`CASE WHEN type=2 THEN flow END`)), "avgFlow"],
+  [completeYearAggregate("MIN", `CASE WHEN type=1 THEN flow END`, `type=1 AND ${flowValid}`), "minFlow"],
+  [completeYearAggregate("MAX", `CASE WHEN type=3 THEN flow END`, `type=3 AND ${flowValid}`), "maxFlow"],
+  [completeYearAggregate("AVG", `CASE WHEN type=2 THEN flow END`, `type=2 AND ${flowValid}`), "avgFlow"],
 
   // TEMPERATURE — NOWE: odrzucamy wszystko > 50 °C
-  [Sequelize.fn("MIN", Sequelize.literal(`CASE WHEN type=1 AND ${tempValid} THEN temperature END`)), "minTemperature"],
-  [Sequelize.fn("MAX", Sequelize.literal(`CASE WHEN type=3 AND ${tempValid} THEN temperature END`)), "maxTemperature"],
-  [Sequelize.fn("AVG", Sequelize.literal(`CASE WHEN type=2 AND ${tempValid} THEN temperature END`)), "avgTemperature"],
+  [completeYearAggregate("MIN", `CASE WHEN type=1 AND ${tempValid} THEN temperature END`, `type=1 AND ${tempValid}`), "minTemperature"],
+  [completeYearAggregate("MAX", `CASE WHEN type=3 AND ${tempValid} THEN temperature END`, `type=3 AND ${tempValid}`), "maxTemperature"],
+  [completeYearAggregate("AVG", `CASE WHEN type=2 AND ${tempValid} THEN temperature END`, `type=2 AND ${tempValid}`), "avgTemperature"],
 ];
 
 const formatToNumber = (value) =>
