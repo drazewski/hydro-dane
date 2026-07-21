@@ -56,6 +56,7 @@ export enum RecordDataType {
 export interface AvailableDataType {
   years: number[];
   dataType: RecordDataType[];
+  yearsByType?: Partial<Record<RecordDataType, number[]>>;
 }
 
 export enum RecordDataTypeLabel {

@@ -2,6 +2,10 @@
   position: relative;
 }
 
+.option {
+  white-space: nowrap;
+}
+
 .floatingLabel {
   position: absolute;
   top: -5px;

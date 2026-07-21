@@ -3,7 +3,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
 import styles from "./filters.module.css";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
 import { useYearlyRecords } from "../../hooks/useYearlyRecords";
 import { trackDataSelected } from "../analytics/analyticsEvents";
@@ -37,24 +37,47 @@ const Filters = ({ selectedStation }: Props) => {
 
   const isLoading = isMonthlyData ? loadingMonthly : loadingYearly;
   const isError = isMonthlyData ? errorMonthly : errorYearly;
+  const previousScopeKeyRef = useRef<string | null>(null);
 
   const sortedYears = useMemo(() => {
-    const years = isMonthlyData ? monthlyAvailable.years : yearlyAvailable.years;
+    const available = isMonthlyData ? monthlyAvailable : yearlyAvailable;
+    const years = available.yearsByType?.[dataType] ?? available.years;
     return [...years].sort((a, b) => a - b);
-  }, [isMonthlyData, monthlyAvailable.years, yearlyAvailable.years]);
+  }, [dataType, isMonthlyData, monthlyAvailable, yearlyAvailable]);
 
   useEffect(() => {
-    if (!isLoading && !yearFrom && sortedYears.length > 0) {
-      setYearFrom(String(sortedYears[0]));
-      setYearTo(String(sortedYears[sortedYears.length - 1]));
+    if (isLoading || sortedYears.length === 0) {
+      return;
+    }
 
-      const hasLevel = isMonthlyData
-        ? monthlyData.some((r) => r.avgLevel != null)
-        : yearlyData.some((r) => r.avgLevel != null);
-      setSelectedDataType(hasLevel ? RecordDataType.level : RecordDataType.flow);
+    const minYear = String(sortedYears[0]);
+    const maxYear = String(sortedYears[sortedYears.length - 1]);
+    const currentScopeKey = `${selectedStation.id}:${isMonthlyData ? "monthly" : "yearly"}:${dataType}`;
+    const currentFromValid = yearFrom != null && sortedYears.includes(Number(yearFrom));
+    const currentToValid = yearTo != null && sortedYears.includes(Number(yearTo));
+    const scopeChanged = previousScopeKeyRef.current !== currentScopeKey;
+
+    previousScopeKeyRef.current = currentScopeKey;
+
+    if (scopeChanged || !currentFromValid || !currentToValid || Number(yearFrom) > Number(yearTo)) {
+      setYearFrom(minYear);
+      setYearTo(maxYear);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, yearFrom, sortedYears]);
+  }, [dataType, isLoading, isMonthlyData, selectedStation.id, setYearFrom, setYearTo, sortedYears, yearFrom, yearTo]);
+
+  useEffect(() => {
+    if (isLoading || yearFrom || sortedYears.length === 0) {
+      return;
+    }
+
+    const hasLevel = isMonthlyData
+      ? monthlyData.some((r) => r.avgLevel != null)
+      : yearlyData.some((r) => r.avgLevel != null);
+
+    setSelectedDataType(hasLevel ? RecordDataType.level : RecordDataType.flow);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isMonthlyData, monthlyData, yearlyData, yearFrom, sortedYears.length]);
 
   const yearsOptions = useMemo(
     () => sortedYears.map((y) => ({ label: y.toString(), value: y.toString() })),

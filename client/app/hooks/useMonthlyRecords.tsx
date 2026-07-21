@@ -12,6 +12,7 @@ import {
 const initialAvailableData: AvailableDataType = {
   years: [],
   dataType: [],
+  yearsByType: {},
 };
 
 export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => {
@@ -35,9 +36,23 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
           if (!acc.dataType.includes(RecordDataType.flow) && curr.flow !== null && curr.flow !== undefined) {
             acc.dataType.push(RecordDataType.flow);
           }
+          if (curr.flow !== null && curr.flow !== undefined) {
+            acc.yearsByType ??= {};
+            acc.yearsByType[RecordDataType.flow] ??= [];
+            if (!acc.yearsByType[RecordDataType.flow]?.includes(curr.year)) {
+              acc.yearsByType[RecordDataType.flow]?.push(curr.year);
+            }
+          }
 
           if (!acc.dataType.includes(RecordDataType.level) && curr.level !== null && curr.level !== undefined) {
             acc.dataType.push(RecordDataType.level);
+          }
+          if (curr.level !== null && curr.level !== undefined) {
+            acc.yearsByType ??= {};
+            acc.yearsByType[RecordDataType.level] ??= [];
+            if (!acc.yearsByType[RecordDataType.level]?.includes(curr.year)) {
+              acc.yearsByType[RecordDataType.level]?.push(curr.year);
+            }
           }
 
           if (
@@ -47,10 +62,17 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
           ) {
             acc.dataType.push(RecordDataType.temperature);
           }
+          if (curr.temperature !== null && curr.temperature !== undefined) {
+            acc.yearsByType ??= {};
+            acc.yearsByType[RecordDataType.temperature] ??= [];
+            if (!acc.yearsByType[RecordDataType.temperature]?.includes(curr.year)) {
+              acc.yearsByType[RecordDataType.temperature]?.push(curr.year);
+            }
+          }
 
           return acc;
         },
-        { years: [], dataType: [] }
+        { years: [], dataType: [], yearsByType: {} }
       ) ?? initialAvailableData,
     [data]
   );
@@ -126,6 +148,12 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
     availableData: {
       ...availableData,
       years: [...availableData.years].sort((a, b) => a - b),
+      yearsByType: Object.fromEntries(
+        Object.entries(availableData.yearsByType ?? {}).map(([key, years]) => [
+          key,
+          [...(years ?? [])].sort((a, b) => a - b),
+        ])
+      ),
     },
     isLoading,
     isError,

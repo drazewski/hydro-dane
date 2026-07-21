@@ -9,6 +9,7 @@ import Charts from "./components/charts/Charts";
 import ExtremumTable from "./components/extremumTable/ExtremumTable";
 import Header from "./components/header/Header";
 import { Footer } from "./components/footer/Footer";
+import { WITHDRAWN_STATION_IDS } from "./constants/withdrawnStations";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +26,7 @@ export default function Home() {
   const selectedYearFrom = useStationStore((state) => state.yearFrom);
   const selectedYearTo = useStationStore((state) => state.yearTo);
   const selectedType = useStationStore((state) => state.dataType);
+  const hasWithdrawnData = selectedStation ? WITHDRAWN_STATION_IDS.has(selectedStation.id) : false;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -52,9 +54,11 @@ export default function Home() {
               selectedStation={selectedStation} 
               selectedType={selectedType}
             />
-            <ExtremumTable
-              selectedStation={selectedStation}
-            />
+            {!hasWithdrawnData && (
+              <ExtremumTable
+                selectedStation={selectedStation}
+              />
+            )}
           </div>
         )}
       </main>

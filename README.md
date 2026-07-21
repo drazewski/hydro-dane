@@ -135,7 +135,7 @@ NEXT_PUBLIC_VITE_BASE_URL=http://localhost:8080
 
 Baza musi zawierać dane hydrologiczne w tabelach używanych przez aplikację:
 
-- `hydro_monthly` - miesięczne rekordy hydrologiczne,
+- `hydro_monthly_backup_2023` - miesięczne rekordy hydrologiczne,
 - `stations` - lista stacji pomiarowych.
 
 Dane można zaimportować z plików CSV IMGW-PIB przy użyciu `LOAD DATA INFILE`, własnego skryptu importującego albo migracji.

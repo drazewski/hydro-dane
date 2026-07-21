@@ -6,6 +6,7 @@ import { useCallback, useMemo } from 'react';
 import { useStationStore } from '../../hooks/useStationStore';
 import { useYearlyRecords } from '../../hooks/useYearlyRecords';
 import ChartTooltip from '../chartTooltip/ChartTooltip';
+import { WITHDRAWN_DATA_MESSAGE, WITHDRAWN_STATION_IDS } from '../../constants/withdrawnStations';
 
 interface Props {
   selectedStation: StationType;
@@ -19,6 +20,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const isDark = colorScheme === 'dark';
   const tickColor = isDark ? '#aaa' : '#444';
   const gridColor = isDark ? '#333' : '#e0e0e0';
+  const hasWithdrawnData = WITHDRAWN_STATION_IDS.has(selectedStation.id);
   const { data: monthlyData, isLoading: isLoadingMonthly, isError: isErrorMonthly } = useMonthlyRecords(selectedStation?.id, isMonthlyData);
   const { data: yearlyData, isLoading: isLoadingYearly, isError: isErrorYearly } = useYearlyRecords(selectedStation?.id, isMonthlyData);
 
@@ -145,14 +147,57 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
             },
           }}
           valueFormatter={(value) => `${value} ${getUnit()}`}
-          tooltipProps={{
-            content: ({label, payload}) => <ChartTooltip label={label} payload={payload as Record<string, unknown>[] | undefined} unit={getUnit()} />,
-            position: { y: 90 }
-          }}
+          tooltipProps={
+            hasWithdrawnData
+              ? { content: () => null }
+              : {
+                  content: ({ label, payload }) => (
+                    <ChartTooltip
+                      label={label}
+                      payload={payload as Record<string, unknown>[] | undefined}
+                      unit={getUnit()}
+                    />
+                  ),
+                  position: { y: 90 },
+                }
+          }
         />
         {!hasData && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
             <Text size="lg" c="dimmed">Brak danych do wyświetlenia</Text>
+          </div>
+        )}
+        {hasWithdrawnData && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '14px 18px',
+              background: isDark ? 'rgba(10, 10, 10, 0.45)' : 'rgba(255, 255, 255, 0.5)',
+              backdropFilter: 'grayscale(1)',
+              WebkitBackdropFilter: 'grayscale(1)',
+              pointerEvents: 'none',
+              borderRadius: 4,
+            }}
+          >
+            <Text
+              size="sm"
+              fw={800}
+              c={isDark ? '#f1c7c7' : '#8f1f1f'}
+              style={{
+                background: isDark ? 'rgba(30, 30, 30, 0.85)' : 'rgba(255, 255, 255, 0.92)',
+                padding: '8px 12px',
+                borderRadius: 999,
+                border: `1px solid ${isDark ? 'rgba(241, 199, 199, 0.35)' : 'rgba(143, 31, 31, 0.2)'}`,
+                textAlign: 'center',
+                boxShadow: isDark ? '0 10px 24px rgba(0, 0, 0, 0.22)' : '0 10px 24px rgba(80, 80, 80, 0.12)',
+              }}
+            >
+              {WITHDRAWN_DATA_MESSAGE}
+            </Text>
           </div>
         )}
       </div>
