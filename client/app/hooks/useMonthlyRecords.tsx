@@ -18,6 +18,8 @@ const initialAvailableData: AvailableDataType = {
 export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => {
   const yearFrom = useStationStore((s) => s.yearFrom);
   const yearTo = useStationStore((s) => s.yearTo);
+  const monthlyMode = useStationStore((s) => s.monthlyMode);
+  const selectedMonth = useStationStore((s) => s.selectedMonth);
 
   const { data, isLoading, isError } = useQuery(
     ["monthlyRecords", stationId],
@@ -25,9 +27,18 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
     { enabled: !!stationId && isMonthlyData }
   );
 
+  const sourceData = useMemo(() => {
+    if (!data) return [];
+    if (monthlyMode !== 'single' || !selectedMonth) {
+      return data;
+    }
+
+    return data.filter((record) => record.month === Number(selectedMonth));
+  }, [data, monthlyMode, selectedMonth]);
+
   const availableData = useMemo(
     () =>
-      data?.reduce(
+      sourceData.reduce(
         (acc: AvailableDataType, curr: MonthlyRecordType) => {
           if (!acc.years.includes(curr.year)) {
             acc.years.push(curr.year);
@@ -74,18 +85,17 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
         },
         { years: [], dataType: [], yearsByType: {} }
       ) ?? initialAvailableData,
-    [data]
+    [sourceData]
   );
 
   const sortedData = useMemo(() => {
-    if (!data) return [];
-    return [...data].sort((a, b) => {
+    return [...sourceData].sort((a, b) => {
       if (a.year === b.year) {
         return a.month - b.month;
       }
       return a.year - b.year;
     });
-  }, [data]);
+  }, [sourceData]);
 
   const structuredData = useMemo(() => {
     return sortedData.reduce(

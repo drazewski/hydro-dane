@@ -6,6 +6,12 @@
   white-space: nowrap;
 }
 
+.selectInput {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .floatingLabel {
   position: absolute;
   top: -5px;
@@ -34,10 +40,45 @@
   margin-bottom: 30px;
 }
 
+.monthModeGroup {
+  min-width: 220px;
+}
+
+.monthModeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.monthSelect {
+  min-width: 118px;
+  width: 132px;
+}
+
+.trendSelect {
+  min-width: 164px;
+  width: 164px;
+}
+
+.trendControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.trendValue {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .row {
   display: flex;
   gap: 15px;
   align-items: center;
+  flex-wrap: wrap;
 
   & label {
     padding-left: 5px;
@@ -49,6 +90,7 @@
   display: flex;
   gap: 0;
   align-items: center;
+  flex-wrap: wrap;
 
   & label {
     padding-left: 5px;
@@ -79,6 +121,7 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .inlineGroup [role="radiogroup"],
@@ -118,5 +161,9 @@
     height: 36px;
     align-items: center;
     gap: 10px;
+  }
+
+  .trendControls {
+    margin-top: 10px;
   }
 }

@@ -16,6 +16,8 @@ interface Props {
 const Charts = ({ selectedStation, selectedType }: Props) => {
   const aggregation = useStationStore((state) => state.aggregation);
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
+  const monthlyMode = useStationStore((state) => state.monthlyMode);
+  const trendLine = useStationStore((state) => state.trendLine);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const tickColor = isDark ? '#aaa' : '#444';
@@ -30,7 +32,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     if (isMonthlyData) {
       return monthlyData.map((d: MonthlyStructuredRecordType) => ({
         ...d,
-        label: `${String(d.month).padStart(2, '0')}.${d.year}`,
+        label: monthlyMode === 'single' ? String(d.year) : `${String(d.month).padStart(2, '0')}.${d.year}`,
       }));
     } else {
       return yearlyData.map((d: YearlyRecordType) => ({
@@ -38,32 +40,20 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
         label: String(d.year),
       }));
     }
-  }, [yearlyData, monthlyData, isMonthlyData]);
+  }, [yearlyData, monthlyData, isMonthlyData, monthlyMode]);
 
   const capitalizedType = selectedType.charAt(0).toUpperCase() + selectedType.slice(1);
   const minLineData = `min${capitalizedType}`;
   const avgLineData = `avg${capitalizedType}`;
   const maxLineData = `max${capitalizedType}`;
-
-  const hasData = useMemo(() => {
-    return data.some(
-      (d: Record<string, unknown>) => d[minLineData] != null || d[avgLineData] != null || d[maxLineData] != null
-    );
-  }, [data, minLineData, avgLineData, maxLineData]);
-
-  const createSeries = useCallback(() => {
-    const series = [];
-    if (aggregation.includes('min')) {
-      series.push({ name: minLineData, label: 'minimalne wartości', color: isDark ? 'white' : 'black', strokeWidth: 1 });
-    }
-    if (aggregation.includes('avg')) {
-      series.push({ name: avgLineData, label: 'średnie wartości', color: 'blue', strokeWidth: 3 });
-    }
-    if (aggregation.includes('max')) {
-      series.push({ name: maxLineData, label: 'maksymalne wartości', color: 'red', strokeWidth: 1 });
-    }
-    return series;
-  }, [aggregation, minLineData, avgLineData, maxLineData, isDark]);
+  const lineColors = useMemo(
+    () => ({
+      min: isDark ? 'white' : 'black',
+      avg: 'blue',
+      max: 'red',
+    }),
+    [isDark]
+  );
 
   const getUnit = useCallback(() => {
     switch (selectedType) {
@@ -77,6 +67,113 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
         return '';
     }
   }, [selectedType]);
+
+  const trendMeta = useMemo(() => {
+    if (trendLine === 'none') {
+      return null;
+    }
+
+    const lineKeyMap = {
+      min: minLineData,
+      avg: avgLineData,
+      max: maxLineData,
+    } as const;
+
+    const selectedKey = lineKeyMap[trendLine];
+    const useYearAsX = !isMonthlyData || monthlyMode === 'single';
+    const points = data
+      .map((item, index) => {
+        const rawValue = item[selectedKey as keyof typeof item];
+        const value = typeof rawValue === 'number' ? rawValue : null;
+        const pointX = useYearAsX && typeof item.year === 'number' ? item.year : index;
+        return value == null ? null : { x: pointX, y: value };
+      })
+      .filter((point): point is { x: number; y: number } => point !== null);
+
+    if (points.length < 2) {
+      return null;
+    }
+
+    const count = points.length;
+    const sumX = points.reduce((acc, point) => acc + point.x, 0);
+    const sumY = points.reduce((acc, point) => acc + point.y, 0);
+    const sumXY = points.reduce((acc, point) => acc + point.x * point.y, 0);
+    const sumXX = points.reduce((acc, point) => acc + point.x * point.x, 0);
+    const denominator = count * sumXX - sumX * sumX;
+
+    if (denominator === 0) {
+      return null;
+    }
+
+    const slope = (count * sumXY - sumX * sumY) / denominator;
+    const intercept = (sumY - slope * sumX) / count;
+    const trendKey = `trend${selectedKey.charAt(0).toUpperCase()}${selectedKey.slice(1)}`;
+    const unitSuffix = useYearAsX ? '/rok' : '/miesiąc';
+    const trendLabel = `${slope >= 0 ? '+' : ''}${slope.toFixed(Math.abs(slope) < 1 ? 2 : 1)} ${getUnit()} ${unitSuffix}`;
+
+    return {
+      key: trendKey,
+      slope,
+      intercept,
+      label: trendLabel,
+      canDisplayLabel: useYearAsX,
+      useYearAsX,
+    };
+  }, [avgLineData, data, getUnit, isMonthlyData, maxLineData, minLineData, monthlyMode, trendLine]);
+
+  const dataWithTrend = useMemo(() => {
+    if (!trendMeta) {
+      return data;
+    }
+
+    return data.map((item, index) => ({
+      ...item,
+      [trendMeta.key]:
+        trendMeta.slope * (trendMeta.useYearAsX && typeof item.year === 'number' ? item.year : index) +
+        trendMeta.intercept,
+    }));
+  }, [data, trendMeta]);
+
+  const hasData = useMemo(() => {
+    return data.some(
+      (d: Record<string, unknown>) => d[minLineData] != null || d[avgLineData] != null || d[maxLineData] != null
+    );
+  }, [data, minLineData, avgLineData, maxLineData]);
+
+  const createSeries = useCallback(() => {
+    const series = [];
+    if (aggregation.includes('min')) {
+      series.push({ name: minLineData, label: 'minimalne wartości', color: lineColors.min, strokeWidth: 1 });
+    }
+    if (aggregation.includes('avg')) {
+      series.push({ name: avgLineData, label: 'średnie wartości', color: lineColors.avg, strokeWidth: 3 });
+    }
+    if (aggregation.includes('max')) {
+      series.push({ name: maxLineData, label: 'maksymalne wartości', color: lineColors.max, strokeWidth: 1 });
+    }
+
+    if (trendLine !== 'none' && aggregation.includes(trendLine) && trendMeta) {
+      const trendKeyMap = {
+        min: `trend${minLineData.charAt(0).toUpperCase()}${minLineData.slice(1)}`,
+        avg: `trend${avgLineData.charAt(0).toUpperCase()}${avgLineData.slice(1)}`,
+        max: `trend${maxLineData.charAt(0).toUpperCase()}${maxLineData.slice(1)}`,
+      } as const;
+      const trendLabelMap = {
+        min: 'trend minimalnych wartości',
+        avg: 'trend średnich wartości',
+        max: 'trend maksymalnych wartości',
+      } as const;
+
+      series.push({
+        name: trendKeyMap[trendLine],
+        label: trendLabelMap[trendLine],
+        color: lineColors[trendLine],
+        strokeWidth: 2,
+        strokeDasharray: '6 4',
+      });
+    }
+    return series;
+  }, [aggregation, avgLineData, lineColors, maxLineData, minLineData, trendLine, trendMeta]);
 
   const maxTemperature = useMemo(() => {
     if (aggregation.includes('max')) {
@@ -101,7 +198,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
       <div style={{ position: 'relative' }}>
         <LineChart
           h={350}
-          data={data}
+          data={dataWithTrend}
           dataKey="label"
           series={createSeries()}
           curveType="monotone"

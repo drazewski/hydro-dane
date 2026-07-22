@@ -10,6 +10,19 @@ interface ChartTooltipProps {
 const ChartTooltip = ({ label, payload, unit }: ChartTooltipProps) => {
   if (!payload) return null;
 
+  const formatValue = (item: Record<string, unknown>) => {
+    const value = item.value;
+    if (typeof value !== 'number') {
+      return value;
+    }
+
+    if (String(item.name).startsWith('trend')) {
+      return value.toFixed(Math.abs(value) < 1 ? 2 : 1);
+    }
+
+    return value;
+  };
+
   return (
     <Paper px="md" py="sm" bg="white" withBorder shadow="md" radius="md">
       <Text fw={500} mb={5}>
@@ -19,7 +32,7 @@ const ChartTooltip = ({ label, payload, unit }: ChartTooltipProps) => {
         const displayName = RecordDataTypeLabel[item.name as keyof typeof RecordDataTypeLabel] ?? item.name;
         return (
           <Text key={item.name as string} c={item.color as string} fz="sm" ta={"left"}>
-            {displayName}: {item.value as number} {unit}
+            {displayName}: {formatValue(item)} {unit}
           </Text>
         );
       })}
