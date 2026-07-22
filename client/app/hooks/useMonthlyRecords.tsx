@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useQuery } from "react-query";
 import { getMonthlyRecords } from "../services/recordService";
 import { useStationStore } from "./useStationStore";
@@ -35,6 +35,15 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
 
     return data.filter((record) => record.month === Number(selectedMonth));
   }, [data, monthlyMode, selectedMonth]);
+
+  const allSortedData = useMemo(() => {
+    return [...(data ?? [])].sort((a, b) => {
+      if (a.year === b.year) {
+        return a.month - b.month;
+      }
+      return a.year - b.year;
+    });
+  }, [data]);
 
   const availableData = useMemo(
     () =>
@@ -97,8 +106,8 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
     });
   }, [sourceData]);
 
-  const structuredData = useMemo(() => {
-    return sortedData.reduce(
+  const mapStructuredData = useCallback((records: MonthlyRecordType[]) => {
+    return records.reduce(
       (acc: MonthlyStructuredRecordType[], curr: MonthlyRecordType) => {
         acc.push({
           station_id: stationId,
@@ -119,10 +128,18 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
       },
       []
     );
-  }, [sortedData, stationId]);
+  }, [stationId]);
 
-  const mergedByMonth = useMemo(() => Object.values(
-    structuredData.reduce(
+  const structuredData = useMemo(() => {
+    return mapStructuredData(sortedData);
+  }, [mapStructuredData, sortedData]);
+
+  const allStructuredData = useMemo(() => {
+    return mapStructuredData(allSortedData);
+  }, [allSortedData, mapStructuredData]);
+
+  const mergeByMonth = useCallback((records: MonthlyStructuredRecordType[]) => Object.values(
+    records.reduce(
       (acc: Record<string, MonthlyStructuredRecordType>, item) => {
         const key = `${item.year}-${item.month}`;
         if (!acc[key]) {
@@ -144,7 +161,10 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
       },
       {}
     )
-  ), [structuredData]);
+  ), []);
+
+  const mergedByMonth = useMemo(() => mergeByMonth(structuredData), [mergeByMonth, structuredData]);
+  const fullData = useMemo(() => mergeByMonth(allStructuredData), [allStructuredData, mergeByMonth]);
 
   const filteredData = useMemo(() => {
     if (!yearFrom || !yearTo) return mergedByMonth;
@@ -155,6 +175,7 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
 
   return {
     data: filteredData,
+    fullData,
     availableData: {
       ...availableData,
       years: [...availableData.years].sort((a, b) => a - b),

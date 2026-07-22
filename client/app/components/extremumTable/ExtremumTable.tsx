@@ -39,10 +39,17 @@ const formatYearly = (row: YearlyRecordType) => String(row.year);
 
 const ExtremumTable = ({ selectedStation }: Props) => {
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
-  const selectedYearFrom = useStationStore((s) => s.yearFrom);
-  const selectedYearTo = useStationStore((s) => s.yearTo);
-  const { data: monthlyData } = useMonthlyRecords(selectedStation.id, isMonthlyData);
-  const { data: yearlyData } = useYearlyRecords(selectedStation.id, isMonthlyData);
+  const { fullData: monthlyData } = useMonthlyRecords(selectedStation.id, isMonthlyData);
+  const { fullData: yearlyData } = useYearlyRecords(selectedStation.id, isMonthlyData);
+
+  const observationRange = useMemo(() => {
+    const years = (isMonthlyData ? monthlyData : yearlyData).map((row) => row.year);
+    if (years.length === 0) {
+      return '—';
+    }
+
+    return `${Math.min(...years)}–${Math.max(...years)}`;
+  }, [isMonthlyData, monthlyData, yearlyData]);
 
   const extremums = useMemo(() => {
     if (isMonthlyData) {
@@ -117,7 +124,7 @@ const ExtremumTable = ({ selectedStation }: Props) => {
                     {selectedStation.waterName} — {selectedStation.name.toUpperCase()}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    {selectedYearFrom}–{selectedYearTo}
+                    {observationRange}
                   </Text>
                 </Stack>
               </Table.Td>

@@ -1,4 +1,5 @@
 import { Paper, Text } from '@mantine/core';
+import { ReactNode } from 'react';
 import { RecordDataTypeLabel } from '../../types/recordTypes';
 
 interface ChartTooltipProps {
@@ -10,10 +11,10 @@ interface ChartTooltipProps {
 const ChartTooltip = ({ label, payload, unit }: ChartTooltipProps) => {
   if (!payload) return null;
 
-  const formatValue = (item: Record<string, unknown>) => {
+  const formatValue = (item: Record<string, unknown>): ReactNode => {
     const value = item.value;
     if (typeof value !== 'number') {
-      return value;
+      return value == null ? '' : String(value);
     }
 
     if (String(item.name).startsWith('trend')) {

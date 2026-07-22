@@ -76,6 +76,7 @@ export const useYearlyRecords = (stationId: number, isMonthlyData: boolean) => {
 
   return {
     data: filteredData,
+    fullData: sorted,
     availableData: { ...availableData, hasType },
     isLoading,
     isError,
