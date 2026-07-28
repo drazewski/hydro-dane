@@ -1,10 +1,9 @@
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
 import { useQuery } from "react-query";
 import { getMonthlyRecords } from "../services/recordService";
 import { useStationStore } from "./useStationStore";
 import {
   AvailableDataType,
-  MonthlyRecordType,
   MonthlyStructuredRecordType,
   RecordDataType,
 } from "../types/recordTypes";
@@ -23,7 +22,7 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
 
   const { data, isLoading, isError } = useQuery(
     ["monthlyRecords", stationId],
-    (): Promise<MonthlyRecordType[]> => getMonthlyRecords(stationId),
+    (): Promise<MonthlyStructuredRecordType[]> => getMonthlyRecords(stationId),
     { enabled: !!stationId && isMonthlyData }
   );
 
@@ -48,15 +47,16 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
   const availableData = useMemo(
     () =>
       sourceData.reduce(
-        (acc: AvailableDataType, curr: MonthlyRecordType) => {
+        (acc: AvailableDataType, curr: MonthlyStructuredRecordType) => {
           if (!acc.years.includes(curr.year)) {
             acc.years.push(curr.year);
           }
 
-          if (!acc.dataType.includes(RecordDataType.flow) && curr.flow !== null && curr.flow !== undefined) {
+          const hasFlow = curr.minFlow != null || curr.avgFlow != null || curr.maxFlow != null;
+          if (!acc.dataType.includes(RecordDataType.flow) && hasFlow) {
             acc.dataType.push(RecordDataType.flow);
           }
-          if (curr.flow !== null && curr.flow !== undefined) {
+          if (hasFlow) {
             acc.yearsByType ??= {};
             acc.yearsByType[RecordDataType.flow] ??= [];
             if (!acc.yearsByType[RecordDataType.flow]?.includes(curr.year)) {
@@ -64,10 +64,11 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
             }
           }
 
-          if (!acc.dataType.includes(RecordDataType.level) && curr.level !== null && curr.level !== undefined) {
+          const hasLevel = curr.minLevel != null || curr.avgLevel != null || curr.maxLevel != null;
+          if (!acc.dataType.includes(RecordDataType.level) && hasLevel) {
             acc.dataType.push(RecordDataType.level);
           }
-          if (curr.level !== null && curr.level !== undefined) {
+          if (hasLevel) {
             acc.yearsByType ??= {};
             acc.yearsByType[RecordDataType.level] ??= [];
             if (!acc.yearsByType[RecordDataType.level]?.includes(curr.year)) {
@@ -77,12 +78,11 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
 
           if (
             !acc.dataType.includes(RecordDataType.temperature) &&
-            curr.temperature !== null &&
-            curr.temperature !== undefined
+            (curr.minTemperature != null || curr.avgTemperature != null || curr.maxTemperature != null)
           ) {
             acc.dataType.push(RecordDataType.temperature);
           }
-          if (curr.temperature !== null && curr.temperature !== undefined) {
+          if (curr.minTemperature != null || curr.avgTemperature != null || curr.maxTemperature != null) {
             acc.yearsByType ??= {};
             acc.yearsByType[RecordDataType.temperature] ??= [];
             if (!acc.yearsByType[RecordDataType.temperature]?.includes(curr.year)) {
@@ -106,72 +106,14 @@ export const useMonthlyRecords = (stationId: number, isMonthlyData: boolean) => 
     });
   }, [sourceData]);
 
-  const mapStructuredData = useCallback((records: MonthlyRecordType[]) => {
-    return records.reduce(
-      (acc: MonthlyStructuredRecordType[], curr: MonthlyRecordType) => {
-        acc.push({
-          station_id: stationId,
-          year: curr.year,
-          month: curr.month,
-          minLevel: curr.type === 1 ? Math.round(curr.level) : undefined,
-          avgLevel: curr.type === 2 ? Math.round(curr.level) : undefined,
-          maxLevel: curr.type === 3 ? Math.round(curr.level) : undefined,
-          minFlow: curr.type === 1 ? Math.round(curr.flow) : undefined,
-          avgFlow: curr.type === 2 ? Math.round(curr.flow) : undefined,
-          maxFlow: curr.type === 3 ? Math.round(curr.flow) : undefined,
-          minTemperature: curr.type === 1 ? curr.temperature : undefined,
-          avgTemperature: curr.type === 2 ? curr.temperature : undefined,
-          maxTemperature: curr.type === 3 ? curr.temperature : undefined,
-        });
-
-        return acc;
-      },
-      []
-    );
-  }, [stationId]);
-
-  const structuredData = useMemo(() => {
-    return mapStructuredData(sortedData);
-  }, [mapStructuredData, sortedData]);
-
-  const allStructuredData = useMemo(() => {
-    return mapStructuredData(allSortedData);
-  }, [allSortedData, mapStructuredData]);
-
-  const mergeByMonth = useCallback((records: MonthlyStructuredRecordType[]) => Object.values(
-    records.reduce(
-      (acc: Record<string, MonthlyStructuredRecordType>, item) => {
-        const key = `${item.year}-${item.month}`;
-        if (!acc[key]) {
-          acc[key] = {
-            year: item.year,
-            month: item.month,
-            station_id: item.station_id,
-          };
-        }
-
-        (["minLevel","avgLevel","maxLevel","minFlow","avgFlow","maxFlow","minTemperature","avgTemperature","maxTemperature"] as const).forEach((field) => {
-          const value = item[field];
-          if (value !== null && value !== undefined) {
-            acc[key][field] = value;
-          }
-        });
-
-        return acc;
-      },
-      {}
-    )
-  ), []);
-
-  const mergedByMonth = useMemo(() => mergeByMonth(structuredData), [mergeByMonth, structuredData]);
-  const fullData = useMemo(() => mergeByMonth(allStructuredData), [allStructuredData, mergeByMonth]);
+  const fullData = allSortedData;
 
   const filteredData = useMemo(() => {
-    if (!yearFrom || !yearTo) return mergedByMonth;
+    if (!yearFrom || !yearTo) return sortedData;
     const from = Number(yearFrom);
     const to = Number(yearTo);
-    return mergedByMonth.filter((d) => d.year >= from && d.year <= to);
-  }, [mergedByMonth, yearFrom, yearTo]);
+    return sortedData.filter((d) => d.year >= from && d.year <= to);
+  }, [sortedData, yearFrom, yearTo]);
 
   return {
     data: filteredData,

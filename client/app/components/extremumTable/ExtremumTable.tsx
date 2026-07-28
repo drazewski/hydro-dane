@@ -32,7 +32,7 @@ function findExtremum<T extends Record<string, unknown>>(
   return { value: best, date };
 }
 
-const formatMonthly = (row: MonthlyStructuredRecordType) =>
+const formatMonthly = (row: Pick<MonthlyStructuredRecordType, 'year' | 'month'>) =>
   `${String(row.month).padStart(2, '0')}-${row.year}`;
 
 const formatYearly = (row: YearlyRecordType) => String(row.year);

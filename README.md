@@ -1,6 +1,8 @@
 # HydroDane
 
-**HydroDane** to aplikacja do przeglądania i wizualizacji archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Projekt składa się z API Node.js/Express z bazą MySQL oraz frontendu Next.js prezentującego wykresy, filtry i zestawienia ekstremów.
+**HydroDane** to aplikacja do przeglądania i wizualizacji archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Domyślnie frontend Next.js działa bez backendu: odczytuje gotowe pliki JSON i prezentuje wykresy, filtry oraz zestawienia ekstremów.
+
+Repozytorium zachowuje także API Node.js/Express z MySQL. Może ono służyć do importu, kontroli i eksportu danych, lecz obecny frontend nie wysyła do niego żądań w czasie działania.
 
 ## Co robi aplikacja
 
@@ -17,19 +19,30 @@ Dane prezentowane w aplikacji pochodzą z publicznych zasobów Instytutu Meteoro
 
 https://danepubliczne.imgw.pl/data/dane_pomiarowo_obserwacyjne/dane_hydrologiczne/miesieczne/
 
-Dane źródłowe są publikowane przez IMGW-PIB jako pliki CSV. W aplikacji są importowane do bazy MySQL i przetwarzane na potrzeby wykresów oraz agregacji.
+Dane źródłowe są publikowane przez IMGW-PIB jako pliki CSV. Mogą zostać zaimportowane do lokalnej bazy MySQL, a następnie wyeksportowane do statycznych JSON-ów używanych przez frontend.
+
+Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane IMGW-PIB zostały przetworzone na potrzeby wizualizacji i agregacji.
 
 Serwis **nie jest oficjalnym serwisem IMGW-PIB**, nie jest powiązany, afiliowany ani sponsorowany przez IMGW-PIB. HydroDane jest niezależną warstwą wizualizacji danych.
 
-## Przetwarzanie danych
+## Domyślny tryb: statyczne JSON-y
 
-Backend wykonuje podstawowe porządkowanie danych przed zwróceniem ich do frontendu:
+Frontend pobiera dane z katalogu `client/public/data`:
+
+- `monthly/<stationId>.json` — dane miesięczne,
+- `yearly/<stationId>.json` — agregaty roczne,
+- `manifest.json` — wersja formatu, data eksportu i lista stacji.
+
+Pliki są serwowane przez Next.js pod adresami `/data/monthly/<stationId>.json` i `/data/yearly/<stationId>.json`. Nie są potrzebne uruchomiony Express, MySQL ani zmienne środowiskowe backendu.
+
+Podczas eksportu danych obowiązują następujące reguły:
 
 - wartości sentinelowe stanu wody `9999` są traktowane jako brak danych,
 - temperatury wody powyżej `50°C` są traktowane jako brak danych,
-- agregaty roczne są liczone osobno dla wartości minimalnych, średnich i maksymalnych.
+- listopad i grudzień należą do poprzedniego roku hydrologicznego,
+- agregat roczny dla konkretnej serii min/avg/max jest `null`, jeśli brakuje choć jednego z 12 miesięcy hydrologicznych.
 
-Aplikacja jest technicznie agnostyczna względem źródła danych: API i frontend pracują na danych znajdujących się w lokalnej bazie MySQL. Obecnie zakładanym i opisanym źródłem są publiczne dane IMGW-PIB, ale ten sam mechanizm może obsługiwać inne dane, jeśli zostaną zaimportowane do zgodnego schematu.
+Opis zwartego formatu JSON znajduje się w [client/public/data/README.md](client/public/data/README.md).
 
 ## Prywatność
 
@@ -44,34 +57,42 @@ Zgodnie z aktualną implementacją:
 
 ## Stack technologiczny
 
-- Backend: Node.js, Express, Sequelize, MySQL
-- Frontend: Next.js, React, Mantine, Recharts
-- Pobieranie danych: Axios, react-query
-- Stan UI: Zustand
+- Domyślny frontend: Next.js, React, Mantine, Recharts, react-query, Zustand
+- Opcjonalny backend: Node.js, Express, Sequelize, MySQL
 
 ## Wymagania
 
 - Node.js 18 lub nowszy
-- MySQL
-- dane dostępowe do bazy w pliku `.env`
+- MySQL i plik `.env` są potrzebne wyłącznie do uruchomienia API lub wykonania eksportu z bazy.
 
 ## Uruchomienie lokalne
 
-1. Zainstaluj zależności backendu:
-
-```bash
-npm install
-```
-
-2. Zainstaluj zależności frontendu:
+1. Zainstaluj zależności frontendu:
 
 ```bash
 cd client
 npm install
-cd ..
 ```
 
-3. Przygotuj konfigurację bazy:
+2. Uruchom frontend:
+
+```bash
+npm run dev
+```
+
+Next.js będzie dostępny pod `http://localhost:3000` i użyje plików z `client/public/data`.
+
+## Opcjonalny tryb API z MySQL
+
+Backend nie jest wymagany przez obecny frontend, ale pozostaje w repozytorium jako źródło danych i API do dalszego wykorzystania.
+
+1. Zainstaluj zależności w katalogu głównym:
+
+```bash
+npm install
+```
+
+2. Przygotuj konfigurację bazy:
 
 ```bash
 cp .env.example .env
@@ -85,53 +106,18 @@ DB_PORT=3306
 DB_NAME=your_db_name
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-```
-
-Opcjonalnie:
-
-```bash
 DB_DIALECT=mysql
-DB_POOL_MAX=5
-DB_POOL_MIN=0
-DB_POOL_ACQUIRE=30000
-DB_POOL_IDLE=10000
 ```
 
-Przykład lokalnej konfiguracji:
+3. Uruchom API:
 
 ```bash
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=db_hydro
-DB_USER=root
-DB_PASSWORD=your_db_password
-```
-
-4. Uruchom backend i frontend:
-
-```bash
-npm run dev:all
-```
-
-Możesz też uruchomić je osobno:
-
-```bash
-# backend
 npm run dev
-
-# frontend
-npm run dev:client
 ```
 
-Domyślnie backend działa na porcie `8080`, a frontend Next.js na porcie `3000`.
+API działa domyślnie pod `http://localhost:8080/api`.
 
-Frontend powinien wskazywać na API przez zmienną:
-
-```bash
-NEXT_PUBLIC_VITE_BASE_URL=http://localhost:8080
-```
-
-## Import danych
+## Import i eksport danych
 
 Baza musi zawierać dane hydrologiczne w tabelach używanych przez aplikację:
 
@@ -147,7 +133,15 @@ Repozytorium zawiera przykładowe pliki w katalogu `example_data`, między innym
 
 Można ich użyć do szybkiego sprawdzenia działania wykresów i interfejsu.
 
-## API
+Po zaimportowaniu danych do MySQL wygeneruj pliki statyczne dla frontendu:
+
+```bash
+npm run export:static-data
+```
+
+Polecenie zapisuje pliki w `client/public/data`. Dzięki temu można zaktualizować dane w aplikacji bez uruchamiania backendu w produkcji.
+
+## Zachowane API
 
 Bazowy adres lokalnego API:
 
@@ -161,7 +155,7 @@ http://localhost:8080/api
 GET /stations
 ```
 
-Zwraca listę stacji pomiarowych.
+Zwraca listę stacji pomiarowych. Obecny frontend korzysta z lokalnego pliku `stations.json`, a nie z tego endpointu.
 
 Przykład:
 

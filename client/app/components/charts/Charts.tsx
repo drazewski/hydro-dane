@@ -27,19 +27,17 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const { data: yearlyData, isLoading: isLoadingYearly, isError: isErrorYearly } = useYearlyRecords(selectedStation?.id, isMonthlyData);
 
   const data = useMemo(() => {
-    if (!monthlyData || !yearlyData) return [];
-
     if (isMonthlyData) {
-      return monthlyData.map((d: MonthlyStructuredRecordType) => ({
+      return (monthlyData ?? []).map((d: MonthlyStructuredRecordType) => ({
         ...d,
         label: monthlyMode === 'single' ? String(d.year) : `${String(d.month).padStart(2, '0')}.${d.year}`,
       }));
-    } else {
-      return yearlyData.map((d: YearlyRecordType) => ({
-        ...d,
-        label: String(d.year),
-      }));
     }
+
+    return (yearlyData ?? []).map((d: YearlyRecordType) => ({
+      ...d,
+      label: String(d.year),
+    }));
   }, [yearlyData, monthlyData, isMonthlyData, monthlyMode]);
 
   const capitalizedType = selectedType.charAt(0).toUpperCase() + selectedType.slice(1);

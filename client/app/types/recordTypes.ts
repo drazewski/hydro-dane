@@ -1,14 +1,3 @@
-export interface MonthlyRecordType {
-  station_id: number;
-  year: number;
-  h_month: number;
-  type: 1 | 2 | 3;
-  level: number;
-  flow: number;
-  temperature: number;
-  month: number;
-}
-
 export type YearlyRecordType = {
   year: number;
   minLevel: number | null;
@@ -23,18 +12,17 @@ export type YearlyRecordType = {
 };
 
 export interface MonthlyStructuredRecordType {
-  station_id: number;
   year: number;
-  month: number
-  minLevel?: number;
-  maxLevel?: number;
-  avgLevel?: number;
-  minFlow?: number;  
-  maxFlow?: number;
-  avgFlow?: number;
-  minTemperature?: number;
-  maxTemperature?: number;
-  avgTemperature?: number;
+  month: number;
+  minLevel: number | null;
+  maxLevel: number | null;
+  avgLevel: number | null;
+  minFlow: number | null;
+  maxFlow: number | null;
+  avgFlow: number | null;
+  minTemperature: number | null;
+  maxTemperature: number | null;
+  avgTemperature: number | null;
 }
 
 export interface StationType {

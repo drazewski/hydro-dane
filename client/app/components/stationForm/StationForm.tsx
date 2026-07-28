@@ -25,6 +25,8 @@ const normalizeStationSearch = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .trim();
 
+const getStationSearchSeed = (waterName?: string | null) => waterName?.trim() ?? '';
+
 const StationForm = () => {
   const { stations, freshYear } = useStations();
   const selectedStation = useStationStore((state) => state.station);
@@ -110,9 +112,9 @@ const StationForm = () => {
   };
 
   const handleClear = () => {
-    setSearchValue('');
+    setSearchValue(getStationSearchSeed(selectedStation?.waterName));
     setSelectedStation(null);
-    setIsEditing(false);
+    setIsEditing(true);
   };
 
   if (selectedStation && !isEditing) {
@@ -123,7 +125,7 @@ const StationForm = () => {
             variant="subtle"
             color="var(--mantine-primary-color-filled)"
             onClick={() => {
-              setSearchValue('');
+              setSearchValue(getStationSearchSeed(selectedStation.waterName));
               setIsEditing(true);
             }}
             className={styles.editButton}
