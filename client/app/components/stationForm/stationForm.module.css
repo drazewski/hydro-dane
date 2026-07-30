@@ -13,8 +13,31 @@
   width: 100%;
 }
 
+.pickerAttention :global(.mantine-Input-input) {
+  animation: station-picker-attention 1.2s ease-in-out;
+}
+
+@keyframes station-picker-attention {
+  0%,
+  100% {
+    border-color: var(--mantine-color-gray-4);
+    box-shadow: none;
+  }
+
+  25%,
+  75% {
+    border-color: var(--mantine-color-red-6);
+    box-shadow: 0 0 0 2px var(--mantine-color-red-light);
+  }
+
+  50% {
+    border-color: var(--mantine-color-gray-4);
+    box-shadow: none;
+  }
+}
+
 .legend {
-  margin-top: 10px;
+  margin: 10px 0 30px;
 }
 
 .legendTitle {

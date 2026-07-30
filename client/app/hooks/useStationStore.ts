@@ -11,6 +11,7 @@ interface StationStoreType {
   dataType: RecordDataType;
   aggregation: ('min' | 'avg' | 'max')[];
   trendLine: 'none' | 'min' | 'avg' | 'max';
+  stationPickerAttention: number;
   setSelectedStation: (station: StationType | null) => void;
   setYearFrom: (year: string | null) => void;
   setYearTo: (year: string | null) => void;
@@ -20,6 +21,7 @@ interface StationStoreType {
   setSelectedDataType: (dataType: RecordDataType) => void;
   setAggregation: (aggregation: ('min' | 'avg' | 'max')[]) => void;
   setTrendLine: (trendLine: 'none' | 'min' | 'avg' | 'max') => void;
+  requestStationPickerAttention: () => void;
 }
 
 export const useStationStore = create<StationStoreType>((set) => ({
@@ -32,6 +34,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
   dataType: RecordDataType.level,
   aggregation: ['min','avg','max'],
   trendLine: 'none',
+  stationPickerAttention: 0,
   setSelectedStation: (newStation) => set(() => ({
     station: newStation,
     yearFrom: null,
@@ -48,4 +51,6 @@ export const useStationStore = create<StationStoreType>((set) => ({
   setSelectedDataType: (dataType) => set(() => ({ dataType })),
   setAggregation: (aggregation) => set(() => ({ aggregation })),
   setTrendLine: (trendLine) => set(() => ({ trendLine })),
+  requestStationPickerAttention: () =>
+    set((state) => ({ stationPickerAttention: state.stationPickerAttention + 1 })),
 }));

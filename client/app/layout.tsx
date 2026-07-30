@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   applicationName: "HydroDane",
   description:
-    "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB: poziom wody, przepływ, temperatura wody.",
+    "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane wodowskazów IMGW-PIB: poziom wody, przepływ, temperatura wody.",
   keywords: [
     "dane hydrologiczne",
     "hydrologia",
@@ -70,13 +70,13 @@ export const metadata: Metadata = {
     siteName: "HydroDane",
     title: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
     description:
-      "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB: poziom wody, przepływ, temperatura wody.",
+      "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane wodowskazów IMGW-PIB: poziom wody, przepływ, temperatura wody.",
   },
   twitter: {
     card: "summary",
     title: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
     description:
-      "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane IMGW-PIB.",
+      "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane wodowskazów IMGW-PIB.",
   },
   robots: {
     index: true,

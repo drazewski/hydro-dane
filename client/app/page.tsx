@@ -10,6 +10,7 @@ import ExtremumTable from "./components/extremumTable/ExtremumTable";
 import Header from "./components/header/Header";
 import { Footer } from "./components/footer/Footer";
 import { WITHDRAWN_STATION_IDS } from "./constants/withdrawnStations";
+import DataOverview from "./components/dataOverview/DataOverview";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,17 +40,10 @@ export default function Home() {
           </h2>
           <StationForm />
         </div>
+        {!selectedStation && <DataOverview />}
         {selectedStation && <Filters selectedStation={selectedStation} />}
         {selectedStation && selectedYearFrom && selectedYearTo && selectedType && (
           <div className={styles.subtitleWrapper}>
-            {/* {selectedStation && (
-            <div className={styles.subtitleWrapper}>
-              <span>Stacja pomiarowa:</span>
-              <span className={styles.name}>
-                <strong>{`${selectedStation.waterName} - ${selectedStation.name.toLowerCase()} (${selectedStation.id})`}</strong>
-              </span>
-            </div>
-          )} */}
             <Charts
               selectedStation={selectedStation} 
               selectedType={selectedType}

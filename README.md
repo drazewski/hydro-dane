@@ -21,7 +21,7 @@ https://danepubliczne.imgw.pl/data/dane_pomiarowo_obserwacyjne/dane_hydrologiczn
 
 Dane źródłowe są publikowane przez IMGW-PIB jako pliki CSV. Mogą zostać zaimportowane do lokalnej bazy MySQL, a następnie wyeksportowane do statycznych JSON-ów używanych przez frontend.
 
-Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane IMGW-PIB zostały przetworzone na potrzeby wizualizacji i agregacji.
+Źródłem pochodzenia danych jest Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy. Dane wodowskazów IMGW-PIB zostały przetworzone na potrzeby wizualizacji i agregacji.
 
 Serwis **nie jest oficjalnym serwisem IMGW-PIB**, nie jest powiązany, afiliowany ani sponsorowany przez IMGW-PIB. HydroDane jest niezależną warstwą wizualizacji danych.
 

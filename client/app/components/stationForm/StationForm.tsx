@@ -31,9 +31,11 @@ const StationForm = () => {
   const { stations, freshYear } = useStations();
   const selectedStation = useStationStore((state) => state.station);
   const dataType = useStationStore((state) => state.dataType);
+  const stationPickerAttention = useStationStore((state) => state.stationPickerAttention);
   const setSelectedStation = useStationStore((state) => state.setSelectedStation);
   const [searchValue, setSearchValue] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isPickerHighlighted, setIsPickerHighlighted] = useState(false);
   const [visibleOptionsLimit, setVisibleOptionsLimit] = useState(INITIAL_VISIBLE_OPTIONS);
   const deferredSearchValue = useDeferredValue(searchValue);
   const normalizedDeferredSearchValue = normalizeStationSearch(deferredSearchValue);
@@ -41,6 +43,19 @@ const StationForm = () => {
   useEffect(() => {
     setVisibleOptionsLimit(INITIAL_VISIBLE_OPTIONS);
   }, [normalizedDeferredSearchValue]);
+
+  useEffect(() => {
+    if (stationPickerAttention === 0) return;
+
+    setIsPickerHighlighted(false);
+    const frame = requestAnimationFrame(() => setIsPickerHighlighted(true));
+    const timeout = window.setTimeout(() => setIsPickerHighlighted(false), 1200);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [stationPickerAttention]);
 
   const stationOptions = useMemo<StationOption[]>(
     () =>
@@ -144,73 +159,75 @@ const StationForm = () => {
 
   return (
     <div className={styles.searchRow}>
-      <Select
-        searchable
-        value={null}
-        data={visibleOptions}
-        placeholder="Wpisz nazwę rzeki, miejscowości lub numer stacji..."
-        searchValue={searchValue}
-        autoFocus={isEditing}
-        nothingFoundMessage="Brak pasujących stacji"
-        maxDropdownHeight={320}
-        onSearchChange={setSearchValue}
-        onChange={handleSelect}
-        onDropdownOpen={() => setVisibleOptionsLimit(INITIAL_VISIBLE_OPTIONS)}
-        filter={({ options }) => options}
-        scrollAreaProps={{
-          viewportProps: {
-            onScroll: (event) => {
-              const target = event.currentTarget;
-              const remainingScroll =
-                target.scrollHeight - target.scrollTop - target.clientHeight;
+      <div className={isPickerHighlighted ? styles.pickerAttention : undefined}>
+        <Select
+          searchable
+          value={null}
+          data={visibleOptions}
+          placeholder="Wpisz nazwę rzeki, miejscowości lub numer stacji..."
+          searchValue={searchValue}
+          autoFocus={isEditing}
+          nothingFoundMessage="Brak pasujących stacji"
+          maxDropdownHeight={320}
+          onSearchChange={setSearchValue}
+          onChange={handleSelect}
+          onDropdownOpen={() => setVisibleOptionsLimit(INITIAL_VISIBLE_OPTIONS)}
+          filter={({ options }) => options}
+          scrollAreaProps={{
+            viewportProps: {
+              onScroll: (event) => {
+                const target = event.currentTarget;
+                const remainingScroll =
+                  target.scrollHeight - target.scrollTop - target.clientHeight;
 
-              if (remainingScroll <= LOAD_MORE_THRESHOLD_PX) {
-                loadMoreOptions();
-              }
+                if (remainingScroll <= LOAD_MORE_THRESHOLD_PX) {
+                  loadMoreOptions();
+                }
+              },
             },
-          },
-        }}
-        renderOption={({ option }) => {
-          if (option.value === LOADING_OPTION_VALUE) {
+          }}
+          renderOption={({ option }) => {
+            if (option.value === LOADING_OPTION_VALUE) {
+              return (
+                <div className={styles.loadingOption}>
+                  <Text size="sm" c="dimmed" fw={500} ta="center">
+                    {option.label}
+                  </Text>
+                </div>
+              );
+            }
+
+            const station = stationLookup.get(option.value);
+
+            if (!station) {
+              return option.label;
+            }
+
             return (
-              <div className={styles.loadingOption}>
-                <Text size="sm" c="dimmed" fw={500} ta="center">
-                  {option.label}
-                </Text>
-              </div>
+              <Group justify="space-between" gap="sm" wrap="nowrap">
+                <div className={styles.optionText}>
+                  <Text size="sm" fw={500}>
+                    {station.fullName}
+                  </Text>
+                  <Text size="xs" c="dimmed">
+                    ID: {station.id}
+                  </Text>
+                </div>
+                <StationStatusIcons
+                  hasTemperatureData={station.hasTemperatureData}
+                  hasFreshTemperatureData={station.hasFreshTemperatureData}
+                  hasFreshLevelData={station.hasFreshLevelData}
+                  freshYear={freshYear}
+                />
+              </Group>
             );
+          }}
+          rightSection={
+            searchValue ? <CloseButton onClick={() => setSearchValue('')} aria-label="Wyczyść wyszukiwanie" /> : null
           }
-
-          const station = stationLookup.get(option.value);
-
-          if (!station) {
-            return option.label;
-          }
-
-          return (
-            <Group justify="space-between" gap="sm" wrap="nowrap">
-              <div className={styles.optionText}>
-                <Text size="sm" fw={500}>
-                  {station.fullName}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  ID: {station.id}
-                </Text>
-              </div>
-              <StationStatusIcons
-                hasTemperatureData={station.hasTemperatureData}
-                hasFreshTemperatureData={station.hasFreshTemperatureData}
-                hasFreshLevelData={station.hasFreshLevelData}
-                freshYear={freshYear}
-              />
-            </Group>
-          );
-        }}
-        rightSection={
-          searchValue ? <CloseButton onClick={() => setSearchValue('')} aria-label="Wyczyść wyszukiwanie" /> : null
-        }
-        rightSectionPointerEvents="all"
-      />
+          rightSectionPointerEvents="all"
+        />
+      </div>
       <StationStatusLegend freshYear={freshYear} />
     </div>
   );

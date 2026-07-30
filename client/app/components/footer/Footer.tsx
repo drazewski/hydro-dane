@@ -44,7 +44,10 @@ export function Footer() {
             </Anchor>
           </Group>
           <Text size="xs" c="dimmed">
-            HydroDane – wszystkie prawa do wizualizacji i wykresów zastrzeżone. Dane źródłowe: IMGW-PIB.
+            HydroDane – wszystkie prawa do wizualizacji i wykresów zastrzeżone. Dane źródłowe: IMGW-PIB. Autor aplikacji:{' '}
+            <Anchor href="https://x.com/DrazewskiL" target="_blank" rel="noopener noreferrer" size="xs" c="dimmed">
+              Łukasz Drążewski
+            </Anchor>
           </Text>
           <Text size="xs" c="dimmed">
             Serwis nie jest powiązany, afiliowany ani sponsorowany przez Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy (IMGW-PIB).
