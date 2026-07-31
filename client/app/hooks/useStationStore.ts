@@ -7,6 +7,7 @@ interface StationStoreType {
   yearTo: string | null;
   isMonthlyData: boolean;
   monthlyMode: 'all' | 'single';
+  chartView: 'line' | 'heatmap';
   selectedMonth: string | null;
   dataType: RecordDataType;
   aggregation: ('min' | 'avg' | 'max')[];
@@ -17,6 +18,7 @@ interface StationStoreType {
   setYearTo: (year: string | null) => void;
   setIsMonthlyData: (isMonthly: boolean) => void;
   setMonthlyMode: (mode: 'all' | 'single') => void;
+  setChartView: (view: 'line' | 'heatmap') => void;
   setSelectedMonth: (month: string | null) => void;
   setSelectedDataType: (dataType: RecordDataType) => void;
   setAggregation: (aggregation: ('min' | 'avg' | 'max')[]) => void;
@@ -30,6 +32,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
   yearTo: null,
   isMonthlyData: false,
   monthlyMode: 'all',
+  chartView: 'line',
   selectedMonth: null,
   dataType: RecordDataType.level,
   aggregation: ['min','avg','max'],
@@ -40,6 +43,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
     yearFrom: null,
     yearTo: null,
     monthlyMode: 'all',
+    chartView: 'line',
     selectedMonth: null,
     trendLine: 'none',
   })),
@@ -47,6 +51,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
   setYearTo: (year) => set(() => ({ yearTo: year })),
   setIsMonthlyData: (isMonthly) => set(() => ({ isMonthlyData: isMonthly })),
   setMonthlyMode: (mode) => set(() => ({ monthlyMode: mode })),
+  setChartView: (chartView) => set(() => ({ chartView })),
   setSelectedMonth: (month) => set(() => ({ selectedMonth: month })),
   setSelectedDataType: (dataType) => set(() => ({ dataType })),
   setAggregation: (aggregation) => set(() => ({ aggregation })),

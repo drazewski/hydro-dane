@@ -1,0 +1,64 @@
+.wrapper {
+  min-height: 350px;
+}
+
+.grid {
+  display: grid;
+  width: max-content;
+  gap: 2px;
+}
+
+.year {
+  height: 44px;
+  color: var(--mantine-color-dimmed);
+  font-size: 10px;
+  line-height: 1;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.monthRow {
+  display: contents;
+}
+
+.month {
+  display: flex;
+  align-items: center;
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+.cell {
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.cell:hover {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 2px var(--mantine-color-dark-5);
+  transform: scale(1.12);
+}
+
+.missing {
+  background: var(--mantine-color-gray-3);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+}
+
+.gradient {
+  display: inline-block;
+  width: 120px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, hsl(207 82% 93%), hsl(207 82% 41%));
+}

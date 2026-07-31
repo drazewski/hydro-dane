@@ -1,4 +1,4 @@
-import { Checkbox, ComboboxItem, Loader, SegmentedControl, Select, Text, useMantineColorScheme } from "@mantine/core";
+import { Checkbox, ComboboxItem, Loader, Radio, SegmentedControl, Select, Text, useMantineColorScheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
@@ -27,8 +27,10 @@ const Filters = ({ selectedStation }: Props) => {
   const setYearFrom = useStationStore((s) => s.setYearFrom);
   const setYearTo = useStationStore((s) => s.setYearTo);
   const monthlyMode = useStationStore((s) => s.monthlyMode);
+  const chartView = useStationStore((s) => s.chartView);
   const selectedMonth = useStationStore((s) => s.selectedMonth);
   const setMonthlyMode = useStationStore((s) => s.setMonthlyMode);
+  const setChartView = useStationStore((s) => s.setChartView);
   const setSelectedMonth = useStationStore((s) => s.setSelectedMonth);
   const aggregations = useStationStore((state) => state.aggregation);
   const trendLine = useStationStore((state) => state.trendLine);
@@ -43,6 +45,14 @@ const Filters = ({ selectedStation }: Props) => {
 
   const isLoading = isMonthlyData ? loadingMonthly : loadingYearly;
   const isError = isMonthlyData ? errorMonthly : errorYearly;
+  const isHeatmap = isMonthlyData && monthlyMode === 'all' && chartView === 'heatmap';
+  const selectedHeatmapAggregation = aggregations.includes('avg')
+    ? 'avg'
+    : aggregations.includes('max')
+      ? 'max'
+      : aggregations.includes('min')
+        ? 'min'
+        : 'avg';
   const previousScopeKeyRef = useRef<string | null>(null);
   const monthOptions = useMemo(
     () => [
@@ -96,6 +106,23 @@ const Filters = ({ selectedStation }: Props) => {
 
     setSelectedMonth('1');
   }, [isMonthlyData, monthlyMode, selectedMonth, setSelectedMonth]);
+
+  useEffect(() => {
+    if (!isMonthlyData || monthlyMode === 'single') {
+      setChartView('line');
+    }
+  }, [isMonthlyData, monthlyMode, setChartView]);
+
+  useEffect(() => {
+    if (!isHeatmap) return;
+
+    if (trendLine !== 'none') {
+      setTrendLine('none');
+    }
+    if (aggregations.length !== 1) {
+      setAggregation([selectedHeatmapAggregation]);
+    }
+  }, [aggregations.length, isHeatmap, selectedHeatmapAggregation, setAggregation, setTrendLine, trendLine]);
 
   useEffect(() => {
     if (isLoading || yearFrom || sortedYears.length === 0) {
@@ -253,8 +280,8 @@ const Filters = ({ selectedStation }: Props) => {
               data={DATA_TYPE_OPTIONS}
               value={dataType}
               onChange={handleDataTypeChange}
-              styles={{ input: { height: 25, minHeight: 25 } }}
-              w={128}
+              styles={{ input: { height: 25, minHeight: 25, whiteSpace: 'nowrap' } }}
+              w={isMobile ? 128 : 170}
             />
             <div className={styles.floatingWrapper}>
               <span className={styles.floatingLabel}>od</span>
@@ -316,40 +343,67 @@ const Filters = ({ selectedStation }: Props) => {
                 )}
               </div>
             )}
+            {isMonthlyData && monthlyMode === 'all' && (
+              <SegmentedControl
+                value={chartView}
+                onChange={(value) => setChartView(value as 'line' | 'heatmap')}
+                data={[
+                  { label: 'Liniowy', value: 'line' },
+                  { label: 'Kalendarz', value: 'heatmap' },
+                ]}
+                size="xs"
+              />
+            )}
           </div>
           <div className={styles.rowNoGap}>
-            <Checkbox.Group
-              label={"Dane:"}
-              classNames={{ label: styles.rangeLabel }}
-              value={aggregations}
-              onChange={(value) => setAggregation(value as ("min" | "avg" | "max")[])}
-              className={styles.inlineGroup}
-            >
-              <Checkbox value="max" label={isMobile ? "Maks." : "Maksymalne"} color="red"/>
-              <Checkbox value="avg" label={isMobile ? "Śr." : "Średnie"} color="blue"/>
-              <Checkbox value="min" label={isMobile ? "Min." : "Minimalne"} color={isDark ? 'white' : 'black'} iconColor={isDark ? 'dark.8' : 'white'}/>
-            </Checkbox.Group>
-            <div className={styles.trendControls}>
-              <Checkbox
-                checked={trendLine !== 'none'}
-                onChange={(event) => handleTrendToggle(event.currentTarget.checked)}
-                label="Trend"
-              />
-              {trendLine !== 'none' && (
-                <>
-                  <Select
-                    className={styles.trendSelect}
-                    data={trendOptions.filter((option) => option.value !== 'none')}
-                    value={trendLine}
-                    onChange={(value) => setTrendLine((value as 'min' | 'avg' | 'max' | null) ?? 'none')}
-                    placeholder="Linia trendu"
-                    classNames={{ option: styles.option, input: styles.selectInput }}
-                    styles={{ input: { height: 25, minHeight: 25 } }}
+            {isHeatmap ? (
+              <Radio.Group
+                label="Dane:"
+                classNames={{ label: styles.rangeLabel }}
+                value={selectedHeatmapAggregation}
+                onChange={(value) => setAggregation([value as 'min' | 'avg' | 'max'])}
+                className={styles.inlineGroup}
+              >
+                <Radio value="max" label={isMobile ? "Maks." : "Maksymalne"} color="red" />
+                <Radio value="avg" label={isMobile ? "Śr." : "Średnie"} color="blue" />
+                <Radio value="min" label={isMobile ? "Min." : "Minimalne"} color={isDark ? 'gray' : 'dark'} />
+              </Radio.Group>
+            ) : (
+              <>
+                <Checkbox.Group
+                  label={"Dane:"}
+                  classNames={{ label: styles.rangeLabel }}
+                  value={aggregations}
+                  onChange={(value) => setAggregation(value as ("min" | "avg" | "max")[])}
+                  className={styles.inlineGroup}
+                >
+                  <Checkbox value="max" label={isMobile ? "Maks." : "Maksymalne"} color="red"/>
+                  <Checkbox value="avg" label={isMobile ? "Śr." : "Średnie"} color="blue"/>
+                  <Checkbox value="min" label={isMobile ? "Min." : "Minimalne"} color={isDark ? 'white' : 'black'} iconColor={isDark ? 'dark.8' : 'white'}/>
+                </Checkbox.Group>
+                <div className={styles.trendControls}>
+                  <Checkbox
+                    checked={trendLine !== 'none'}
+                    onChange={(event) => handleTrendToggle(event.currentTarget.checked)}
+                    label="Trend"
                   />
-                  {trendSummary && <Text className={styles.trendValue}>{trendSummary}</Text>}
-                </>
-              )}
-            </div>
+                  {trendLine !== 'none' && (
+                    <>
+                      <Select
+                        className={styles.trendSelect}
+                        data={trendOptions.filter((option) => option.value !== 'none')}
+                        value={trendLine}
+                        onChange={(value) => setTrendLine((value as 'min' | 'avg' | 'max' | null) ?? 'none')}
+                        placeholder="Linia trendu"
+                        classNames={{ option: styles.option, input: styles.selectInput }}
+                        styles={{ input: { height: 25, minHeight: 25 } }}
+                      />
+                      {trendSummary && <Text className={styles.trendValue}>{trendSummary}</Text>}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -9,8 +9,9 @@ type CompactDataFile = {
 const normalizeBaseUrl = (url: string) => url.replace(/\/$/, '');
 
 // Blob is optional locally, so local development can still use the exported files.
+const localMonthlyDataBaseUrl = '/data/monthly';
 const monthlyDataBaseUrl = normalizeBaseUrl(
-  process.env.NEXT_PUBLIC_MONTHLY_DATA_BASE_URL || '/data/monthly'
+  process.env.NEXT_PUBLIC_MONTHLY_DATA_BASE_URL || localMonthlyDataBaseUrl
 );
 const yearlyDataBaseUrl = '/data/yearly';
 
@@ -46,7 +47,20 @@ export const getMonthlyRecords = async (
   yearOrFrom?: number,
   yearTo?: number
 ): Promise<MonthlyStructuredRecordType[]> => {
-  const { d } = await getStaticData(`${monthlyDataBaseUrl}/${stationId}.json`);
+  const fileName = `${stationId}.json`;
+  let payload: CompactDataFile;
+
+  try {
+    payload = await getStaticData(`${monthlyDataBaseUrl}/${fileName}`);
+  } catch (error) {
+    if (monthlyDataBaseUrl === localMonthlyDataBaseUrl) {
+      throw error;
+    }
+
+    payload = await getStaticData(`${localMonthlyDataBaseUrl}/${fileName}`);
+  }
+
+  const { d } = payload;
   const records = d.reduce<MonthlyStructuredRecordType[]>((result, row) => {
     const year = toInteger(row[0]);
     const month = toInteger(row[1]);

@@ -7,6 +7,7 @@ import { useStationStore } from '../../hooks/useStationStore';
 import { useYearlyRecords } from '../../hooks/useYearlyRecords';
 import ChartTooltip from '../chartTooltip/ChartTooltip';
 import { WITHDRAWN_DATA_MESSAGE, WITHDRAWN_STATION_IDS } from '../../constants/withdrawnStations';
+import MonthlyHeatmap from '../monthlyHeatmap/MonthlyHeatmap';
 
 interface Props {
   selectedStation: StationType;
@@ -17,6 +18,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const aggregation = useStationStore((state) => state.aggregation);
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
   const monthlyMode = useStationStore((state) => state.monthlyMode);
+  const chartView = useStationStore((state) => state.chartView);
   const trendLine = useStationStore((state) => state.trendLine);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
@@ -191,6 +193,12 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
         </div>
       ) : (isErrorMonthly || isErrorYearly) ? (
         <Text c="red">Błąd ładowania danych wykresu. Spróbuj ponownie.</Text>
+      ) : chartView === 'heatmap' && isMonthlyData ? (
+        <MonthlyHeatmap
+          data={monthlyData ?? []}
+          selectedType={selectedType}
+          aggregation={aggregation}
+        />
       ) : (
       <>
       <div style={{ position: 'relative' }}>

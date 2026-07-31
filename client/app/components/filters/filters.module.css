@@ -98,6 +98,12 @@
   }
 } 
 
+@media (max-width: 768px) {
+  .rowNoGap {
+    align-items: baseline;
+  }
+}
+
 .rangeInputs {
   display: flex;
   gap: 15px;
