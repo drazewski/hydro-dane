@@ -35,6 +35,14 @@ export interface StationType {
   hasFreshLevelData: boolean;
 }
 
+export interface StationDetailsType {
+  yearEstablished: number | null;
+  latitude: string | null;
+  longitude: string | null;
+  gaugeZero: number | null;
+  riverKilometre: number | null;
+}
+
 export enum RecordDataType {
   flow = 'flow',
   level = 'level',

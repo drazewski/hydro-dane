@@ -8,13 +8,15 @@
  *   yearly/<stationId>.json:  { "v": 1, "d": [[year, minL, avgL, maxL, minF, avgF, maxF, minT, avgT, maxT]] }
  *
  * null oznacza brak danych. XI i XII są eksportowane do poprzedniego roku
- * hydrologicznego, tak samo jak w aktualnym API.
+ * hydrologicznego, tak samo jak w aktualnym API. Roczne średnie są ważone
+ * liczbą dni w miesiącach źródłowych.
  */
 require("dotenv").config({ quiet: true });
 
 const fs = require("fs/promises");
 const path = require("path");
 const db = require("../app/models");
+const { aggregate, daysInMonth } = require("./static-data-aggregation");
 
 const outputRoot = path.resolve(__dirname, "../client/public/data");
 const monthlyOutputDir = path.join(outputRoot, "monthly");
@@ -35,13 +37,6 @@ const normalizeValue = (key, value) => {
 };
 
 const hydrologicalYear = (year, month) => (month === 11 || month === 12 ? year - 1 : year);
-
-const aggregate = (values, statistic) => {
-  if (values.length === 0) return null;
-  if (statistic === "min") return Math.min(...values);
-  if (statistic === "max") return Math.max(...values);
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-};
 
 const emptyStatistics = () =>
   Object.fromEntries(valueKeys.map((key) => [key, Object.fromEntries(statisticKeys.map((stat) => [stat, []]))]));
@@ -113,7 +108,9 @@ async function run() {
         if (value == null) continue;
 
         monthly.statistics[key][statistic].push(value);
-        yearly.statistics[key][statistic].push(value);
+        yearly.statistics[key][statistic].push(
+          statistic === "avg" ? { value, weight: daysInMonth(Number(row.year), month) } : value
+        );
         // h_month jest kluczem używanym przez aktualne API do walidacji pełnego roku.
         // NULL nie może liczyć się jako miesiąc (tak samo jak w COUNT(DISTINCT ...)).
         const hydrologicalMonth = Number(row.h_month);

@@ -1,19 +1,20 @@
-.thead {
-  background-color: var(--mantine-color-gray-0);
+.heading {
+  min-height: 44px;
 }
 
-:global([data-mantine-color-scheme='dark']) .thead {
-  background-color: var(--mantine-color-dark-6);
+.table {
+  table-layout: fixed;
+  width: 100%;
 }
 
-.firstCol {
-  text-align: left;
-  padding: 10px 14px !important;
-  white-space: nowrap;
+.table :global(tr) {
+  height: 43px;
 }
 
-.valueCol {
-  text-align: right;
-  padding: 10px 14px !important;
-  white-space: nowrap;
+.label {
+  max-width: 0;
+}
+
+.value {
+  width: 170px;
 }

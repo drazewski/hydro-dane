@@ -9,6 +9,8 @@
     "dev:all": "concurrently -n server,client -c yellow,cyan \"npm run dev\" \"npm run dev:client\"",
     "start": "node server.js",
     "export:static-data": "node scripts/export-static-data.js",
+    "export:station-details": "node scripts/export-station-details.js",
+    "test:static-data": "node --test scripts/static-data-aggregation.test.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

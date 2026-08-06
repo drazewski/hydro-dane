@@ -1,6 +1,6 @@
 'use client';
 import { useMemo } from 'react';
-import { Paper, ScrollArea, Table, Text, Stack } from '@mantine/core';
+import { Table, Text } from '@mantine/core';
 import { useStationStore } from '../../hooks/useStationStore';
 import { useMonthlyRecords } from '../../hooks/useMonthlyRecords';
 import { useYearlyRecords } from '../../hooks/useYearlyRecords';
@@ -93,60 +93,47 @@ const ExtremumTable = ({ selectedStation }: Props) => {
     return `${formatted} ${unit} (${ext.date})`;
   };
 
-  const headers = [
-    'Stacja',
-    'Stan wody maks.',
-    'Stan wody min.',
-    'Przepływ maks.',
-    'Przepływ min.',
-    'Temp. wody maks.',
-    'Temp. wody min.',
-  ];
+  const temperatureRows = [
+    ['Najwyższa temperatura wody', formatCell(extremums.maxTemperature, '°C')],
+    ['Najniższa temperatura wody', formatCell(extremums.minTemperature, '°C')],
+  ] as const;
+
+  const hasTemperatureData =
+    extremums.maxTemperature.value != null || extremums.minTemperature.value != null;
+
+  const rows = [
+    ['Najwyższy stan wody', formatCell(extremums.maxLevel, 'cm')],
+    ['Najniższy stan wody', formatCell(extremums.minLevel, 'cm')],
+    ['Najwyższy przepływ', formatCell(extremums.maxFlow, 'm³/s', 2)],
+    ['Najniższy przepływ', formatCell(extremums.minFlow, 'm³/s', 2)],
+    ...(hasTemperatureData ? temperatureRows : []),
+  ] as const;
 
   return (
-    <Paper withBorder radius="md" p="md" mt="xl">
-      <ScrollArea>
-        <Table miw={600} highlightOnHover withRowBorders>
-          <Table.Thead className={styles.thead}>
-            <Table.Tr>
-              {headers.map((h) => (
-                <Table.Th key={h} className={h === 'Stacja' ? styles.firstCol : styles.valueCol}>
-                  <Text fw={600} c="dimmed" size="sm">{h}</Text>
-                </Table.Th>
-              ))}
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            <Table.Tr>
-              <Table.Td className={styles.firstCol}>
-                <Stack gap={2}>
-                  <Text fw={500} size="sm">
-                    {selectedStation.waterName} — {selectedStation.name.toUpperCase()}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {observationRange}
-                  </Text>
-                </Stack>
+    <section>
+      <div className={styles.heading}>
+        <Text fw={600}>Ekstrema obserwacji</Text>
+        <Text size="sm" c="dimmed" mt={2}>
+          Cały dostępny okres: {observationRange}
+        </Text>
+      </div>
+      <Table mt="md" withRowBorders className={styles.table}>
+        <Table.Tbody>
+          {rows.map(([label, value]) => (
+            <Table.Tr key={label}>
+              <Table.Td className={styles.label}>
+                <Text size="sm" c="dimmed" truncate="end" title={label}>{label}</Text>
               </Table.Td>
-              {[
-                formatCell(extremums.maxLevel, 'cm'),
-                formatCell(extremums.minLevel, 'cm'),
-                formatCell(extremums.maxFlow, 'm³/s', 2),
-                formatCell(extremums.minFlow, 'm³/s', 2),
-                formatCell(extremums.maxTemperature, '°C'),
-                formatCell(extremums.minTemperature, '°C'),
-              ].map((val, i) => (
-                <Table.Td key={i} className={styles.valueCol}>
-                  <Text ta="right" size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                    {val}
-                  </Text>
-                </Table.Td>
-              ))}
+              <Table.Td className={styles.value}>
+                <Text ta="right" size="sm" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                  {value}
+                </Text>
+              </Table.Td>
             </Table.Tr>
-          </Table.Tbody>
-        </Table>
-      </ScrollArea>
-    </Paper>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </section>
   );
 };
 

@@ -6,7 +6,7 @@ import Filters from "./components/filters/Filters";
 import StationForm from "./components/stationForm/StationForm";
 import { useStationStore } from "./hooks/useStationStore";
 import Charts from "./components/charts/Charts";
-import ExtremumTable from "./components/extremumTable/ExtremumTable";
+import StationStatistics from "./components/stationStatistics/StationStatistics";
 import Header from "./components/header/Header";
 import { Footer } from "./components/footer/Footer";
 import { WITHDRAWN_STATION_IDS } from "./constants/withdrawnStations";
@@ -49,9 +49,7 @@ export default function Home() {
               selectedType={selectedType}
             />
             {!hasWithdrawnData && (
-              <ExtremumTable
-                selectedStation={selectedStation}
-              />
+              <StationStatistics selectedStation={selectedStation} />
             )}
           </div>
         )}

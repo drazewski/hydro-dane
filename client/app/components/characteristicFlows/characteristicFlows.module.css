@@ -1,0 +1,40 @@
+.container {
+  text-align: left;
+}
+
+.heading {
+  min-height: 44px;
+}
+
+.symbol {
+  width: 72px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.abbreviation {
+  border-bottom: 1px dashed currentColor;
+  cursor: help;
+  text-decoration: none;
+}
+
+.description {
+  color: var(--mantine-color-dimmed);
+  max-width: 0;
+}
+
+.value {
+  width: 116px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.table :global(tr) {
+  height: 43px;
+}
