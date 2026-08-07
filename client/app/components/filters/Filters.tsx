@@ -1,9 +1,10 @@
-import { Checkbox, ComboboxItem, Loader, Radio, SegmentedControl, Select, Text, useMantineColorScheme } from "@mantine/core";
+import { Button, Checkbox, Collapse, ComboboxItem, Loader, Radio, SegmentedControl, Select, Text, useMantineColorScheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
 import styles from "./filters.module.css";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
 import { useYearlyRecords } from "../../hooks/useYearlyRecords";
 import { trackDataSelected } from "../analytics/analyticsEvents";
@@ -14,10 +15,12 @@ interface Props {
 
 const Filters = ({ selectedStation }: Props) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const isCompactMobile = useMediaQuery('(max-width: 360px)');
+  const [optionsOpened, setOptionsOpened] = useState(false);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const DATA_TYPE_OPTIONS = [
-    { label: "Stan wody", value: RecordDataType.level },
+    { label: isCompactMobile ? "Stan" : "Stan wody", value: RecordDataType.level },
     { label: "Przepływ", value: RecordDataType.flow },
     { label: isMobile ? "Temp. wody" : "Temperatura wody", value: RecordDataType.temperature },
   ];
@@ -266,6 +269,18 @@ const Filters = ({ selectedStation }: Props) => {
     return `${slope >= 0 ? '+' : ''}${slope.toFixed(Math.abs(slope) < 1 ? 2 : 1)} ${unit} /rok`;
   }, [dataType, isMonthlyData, monthlyData, monthlyMode, trendLine, yearlyData]);
 
+  const optionSummary = useMemo(() => {
+    const selectedSeries = isHeatmap
+      ? ({ min: 'minimalne', avg: 'średnie', max: 'maksymalne' }[selectedHeatmapAggregation])
+      : aggregations.length === 3
+        ? 'wszystkie wartości'
+        : aggregations.length === 0
+          ? 'brak serii'
+          : aggregations.map((value) => ({ min: 'minimalne', avg: 'średnie', max: 'maksymalne' }[value])).join(', ');
+
+    return trendLine === 'none' ? selectedSeries : `${selectedSeries} · trend`;
+  }, [aggregations, isHeatmap, selectedHeatmapAggregation, trendLine]);
+
   return (
     <div>
       {isLoading ? (
@@ -274,137 +289,166 @@ const Filters = ({ selectedStation }: Props) => {
         <Text c="red">Błąd ładowania danych. Spróbuj ponownie.</Text>
       ) : (
         <div className={styles.container}>
-          <div className={styles.row}>
-            <Text className={styles.rangeLabel}>Zakres danych:</Text>
-            <Select
-              data={DATA_TYPE_OPTIONS}
-              value={dataType}
-              onChange={handleDataTypeChange}
-              styles={{ input: { height: 25, minHeight: 25, whiteSpace: 'nowrap' } }}
-              w={isMobile ? 128 : 170}
-            />
-            <div className={styles.floatingWrapper}>
-              <span className={styles.floatingLabel}>od</span>
+          <div className={styles.toolbar}>
+            <div className={`${styles.field} ${styles.dataTypeField}`}>
+              <Text className={styles.fieldLabel}>Zakres danych</Text>
               <Select
-                data={yearsOptionsFrom}
-                placeholder="od"
-                disabled={!sortedYears.length}
-                classNames={{ option: styles.option, input: styles.option }}
-                styles={{ input: { height: 25, minHeight: 25 } }}
-                value={yearFrom ?? null}
-                onChange={handleYearFromChange}
-                w={82}
+                data={DATA_TYPE_OPTIONS}
+                value={dataType}
+                onChange={handleDataTypeChange}
+                classNames={{ option: styles.option, input: styles.selectInput }}
+                w={isCompactMobile ? 116 : isMobile ? 142 : 174}
               />
             </div>
-            <div className={styles.floatingWrapper}>
-              <span className={styles.floatingLabel}>do</span>
-              <Select
-                data={yearsOptionsTo}
-                placeholder="do"
-                disabled={!sortedYears.length}
-                classNames={{ option: styles.option, input: styles.option }}
-                styles={{ input: { height: 25, minHeight: 25 } }}
-                value={yearTo ?? null}
-                onChange={handleYearToChange}
-                w={82}
+            <div className={`${styles.field} ${styles.aggregationField}`}>
+              <Text className={styles.fieldLabel}>Agregacja</Text>
+              <SegmentedControl
+                value={isMonthlyData ? 'monthly' : 'yearly'}
+                onChange={handleDataAggregationModeChange}
+                data={[
+                  { label: isCompactMobile ? 'Mies.' : 'Miesięczne', value: 'monthly' },
+                  { label: 'Roczne', value: 'yearly' },
+                ]}
+                size={isCompactMobile ? 'xs' : 'sm'}
               />
             </div>
-            <SegmentedControl
-              value={isMonthlyData ? 'monthly' : 'yearly'}
-              onChange={handleDataAggregationModeChange}
-              data={[
-                { label: isMobile ? 'Miesięczne' : 'Dane miesięczne', value: 'monthly' },
-                { label: isMobile ? 'Roczne' : 'Dane roczne', value: 'yearly' },
-              ]}
-              size="xs"
-            />
-            {isMonthlyData && (
-              <div className={styles.monthModeRow}>
-                <SegmentedControl
-                  className={styles.monthModeGroup}
-                  value={monthlyMode}
-                  onChange={handleMonthlyModeChange}
-                  data={[
-                    { label: 'Wszystkie miesiące', value: 'all' },
-                    { label: 'Jeden miesiąc', value: 'single' },
-                  ]}
-                  size="xs"
+            <div className={`${styles.field} ${styles.yearsField}`}>
+              <Text className={styles.fieldLabel}>Zakres lat</Text>
+              <div className={styles.yearInputs}>
+                <Select
+                  data={yearsOptionsFrom}
+                  placeholder="Od"
+                  disabled={!sortedYears.length}
+                  classNames={{ option: styles.option, input: styles.selectInput }}
+                  value={yearFrom ?? null}
+                  onChange={handleYearFromChange}
+                  w={isMobile ? 96 : 86}
                 />
-                {monthlyMode === 'single' && (
-                  <Select
-                    className={styles.monthSelect}
-                    data={monthOptions}
-                    value={selectedMonth}
-                    onChange={setSelectedMonth}
-                    placeholder="Miesiąc"
-                    classNames={{ option: styles.option, input: styles.selectInput }}
-                    styles={{ input: { height: 25, minHeight: 25 } }}
+                <span className={styles.yearSeparator}>—</span>
+                <Select
+                  data={yearsOptionsTo}
+                  placeholder="Do"
+                  disabled={!sortedYears.length}
+                  classNames={{ option: styles.option, input: styles.selectInput }}
+                  value={yearTo ?? null}
+                  onChange={handleYearToChange}
+                  w={isMobile ? 96 : 86}
+                />
+              </div>
+            </div>
+            <div className={styles.optionsTrigger}>
+              <Button
+                variant={optionsOpened ? 'light' : 'default'}
+                size={isCompactMobile ? 'xs' : 'sm'}
+                className={styles.optionsButton}
+                onClick={() => setOptionsOpened((opened) => !opened)}
+                rightSection={isMobile ? undefined : <span aria-hidden="true">{optionsOpened ? '−' : '+'}</span>}
+                aria-expanded={optionsOpened}
+              >
+                {isMobile ? (
+                  <span className={styles.optionsButtonContent}>
+                    <IconAdjustmentsHorizontal size={17} stroke={1.8} />
+                    <span>Opcje</span>
+                  </span>
+                ) : 'Opcje wykresu'}
+              </Button>
+              <Text className={styles.optionSummary}>{optionSummary}</Text>
+            </div>
+          </div>
+          <Collapse in={optionsOpened} transitionDuration={180}>
+            <div className={styles.optionsPanel}>
+              {isMonthlyData && (
+                <div className={styles.optionField}>
+                  <Text className={styles.fieldLabel}>Zakres miesięcy</Text>
+                  <div className={styles.monthModeRow}>
+                    <SegmentedControl
+                      className={styles.monthModeGroup}
+                      value={monthlyMode}
+                      onChange={handleMonthlyModeChange}
+                      data={[
+                        { label: 'Wszystkie miesiące', value: 'all' },
+                        { label: 'Jeden miesiąc', value: 'single' },
+                      ]}
+                      size="sm"
+                    />
+                    {monthlyMode === 'single' && (
+                      <Select
+                        className={styles.monthSelect}
+                        data={monthOptions}
+                        value={selectedMonth}
+                        onChange={setSelectedMonth}
+                        placeholder="Miesiąc"
+                        classNames={{ option: styles.option, input: styles.selectInput }}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+              {isMonthlyData && monthlyMode === 'all' && (
+                <div className={styles.optionField}>
+                  <Text className={styles.fieldLabel}>Widok</Text>
+                  <SegmentedControl
+                    value={chartView}
+                    onChange={(value) => setChartView(value as 'line' | 'heatmap')}
+                    data={[
+                      { label: 'Liniowy', value: 'line' },
+                      { label: 'Kalendarz', value: 'heatmap' },
+                    ]}
+                    size="sm"
                   />
+                </div>
+              )}
+              <div className={styles.optionField}>
+                <Text className={styles.fieldLabel}>Wyświetlane wartości</Text>
+                {isHeatmap ? (
+                  <Radio.Group
+                    value={selectedHeatmapAggregation}
+                    onChange={(value) => setAggregation([value as 'min' | 'avg' | 'max'])}
+                    className={styles.inlineGroup}
+                  >
+                    <Radio value="max" label={isMobile ? 'Maks.' : 'Maksymalne'} color="red" />
+                    <Radio value="avg" label={isMobile ? 'Śr.' : 'Średnie'} color="blue" />
+                    <Radio value="min" label={isMobile ? 'Min.' : 'Minimalne'} color={isDark ? 'gray' : 'dark'} />
+                  </Radio.Group>
+                ) : (
+                  <Checkbox.Group
+                    value={aggregations}
+                    onChange={(value) => setAggregation(value as ('min' | 'avg' | 'max')[])}
+                    className={styles.inlineGroup}
+                  >
+                    <Checkbox value="max" label={isMobile ? 'Maks.' : 'Maksymalne'} color="red" />
+                    <Checkbox value="avg" label={isMobile ? 'Śr.' : 'Średnie'} color="blue" />
+                    <Checkbox value="min" label={isMobile ? 'Min.' : 'Minimalne'} color={isDark ? 'white' : 'black'} iconColor={isDark ? 'dark.8' : 'white'} />
+                  </Checkbox.Group>
                 )}
               </div>
-            )}
-            {isMonthlyData && monthlyMode === 'all' && (
-              <SegmentedControl
-                value={chartView}
-                onChange={(value) => setChartView(value as 'line' | 'heatmap')}
-                data={[
-                  { label: 'Liniowy', value: 'line' },
-                  { label: 'Kalendarz', value: 'heatmap' },
-                ]}
-                size="xs"
-              />
-            )}
-          </div>
-          <div className={styles.rowNoGap}>
-            {isHeatmap ? (
-              <Radio.Group
-                label="Dane:"
-                classNames={{ label: styles.rangeLabel }}
-                value={selectedHeatmapAggregation}
-                onChange={(value) => setAggregation([value as 'min' | 'avg' | 'max'])}
-                className={styles.inlineGroup}
-              >
-                <Radio value="max" label={isMobile ? "Maks." : "Maksymalne"} color="red" />
-                <Radio value="avg" label={isMobile ? "Śr." : "Średnie"} color="blue" />
-                <Radio value="min" label={isMobile ? "Min." : "Minimalne"} color={isDark ? 'gray' : 'dark'} />
-              </Radio.Group>
-            ) : (
-              <>
-                <Checkbox.Group
-                  label={"Dane:"}
-                  classNames={{ label: styles.rangeLabel }}
-                  value={aggregations}
-                  onChange={(value) => setAggregation(value as ("min" | "avg" | "max")[])}
-                  className={styles.inlineGroup}
-                >
-                  <Checkbox value="max" label={isMobile ? "Maks." : "Maksymalne"} color="red"/>
-                  <Checkbox value="avg" label={isMobile ? "Śr." : "Średnie"} color="blue"/>
-                  <Checkbox value="min" label={isMobile ? "Min." : "Minimalne"} color={isDark ? 'white' : 'black'} iconColor={isDark ? 'dark.8' : 'white'}/>
-                </Checkbox.Group>
-                <div className={styles.trendControls}>
-                  <Checkbox
-                    checked={trendLine !== 'none'}
-                    onChange={(event) => handleTrendToggle(event.currentTarget.checked)}
-                    label="Trend"
-                  />
-                  {trendLine !== 'none' && (
-                    <>
-                      <Select
-                        className={styles.trendSelect}
-                        data={trendOptions.filter((option) => option.value !== 'none')}
-                        value={trendLine}
-                        onChange={(value) => setTrendLine((value as 'min' | 'avg' | 'max' | null) ?? 'none')}
-                        placeholder="Linia trendu"
-                        classNames={{ option: styles.option, input: styles.selectInput }}
-                        styles={{ input: { height: 25, minHeight: 25 } }}
+              {!isHeatmap && (
+                <div className={styles.optionField}>
+                  <Text className={styles.fieldLabel}>Trend</Text>
+                  <div className={styles.trendControls}>
+                    <div className={styles.trendFields}>
+                      <Checkbox
+                        checked={trendLine !== 'none'}
+                        onChange={(event) => handleTrendToggle(event.currentTarget.checked)}
+                        label={isMobile ? 'Trend' : 'Pokaż linię trendu'}
                       />
-                      {trendSummary && <Text className={styles.trendValue}>{trendSummary}</Text>}
-                    </>
-                  )}
+                      {trendLine !== 'none' && (
+                        <Select
+                          className={styles.trendSelect}
+                          data={trendOptions.filter((option) => option.value !== 'none')}
+                          value={trendLine}
+                          onChange={(value) => setTrendLine((value as 'min' | 'avg' | 'max' | null) ?? 'none')}
+                          placeholder="Linia trendu"
+                          classNames={{ option: styles.option, input: styles.selectInput }}
+                        />
+                      )}
+                    </div>
+                    {trendSummary && <Text className={styles.trendValue}>{trendSummary}</Text>}
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+            </div>
+          </Collapse>
         </div>
       )}
     </div>
