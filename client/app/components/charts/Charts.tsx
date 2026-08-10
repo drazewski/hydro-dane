@@ -304,11 +304,9 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
           </div>
         )}
       </div>
-      <div id="data-source-info" style={{ marginTop: 20 }}>
-      <p style={{ fontSize: 14, textAlign: 'center', marginTop: 10, fontFamily: 'var(--font-open-sans), system-ui, sans-serif', color: tickColor }}>
-        Źródłem pochodzenia danych jest <strong><a href="https://imgw.pl/" target="_blank">Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy</a></strong>
-      </p>
-      <p style={{ fontSize: 14, fontWeight: 800, color: '#d43e3e', textAlign: 'center', fontFamily: 'var(--font-open-sans), system-ui, sans-serif' }}>
+      <div id="data-source-info" style={{ marginTop: 14 }}>
+      <p style={{ fontSize: 12, textAlign: 'center', marginTop: 8, fontFamily: 'var(--font-open-sans), system-ui, sans-serif', color: tickColor }}>
+        Źródłem pochodzenia danych jest <a href="https://imgw.pl/" target="_blank" rel="noreferrer">Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy</a>{' '}
         Dane Instytutu Meteorologii i Gospodarki Wodnej – Państwowego Instytutu Badawczego zostały przetworzone
       </p>
       </div>

@@ -32,9 +32,10 @@ const StationForm = () => {
   const selectedStation = useStationStore((state) => state.station);
   const dataType = useStationStore((state) => state.dataType);
   const stationPickerAttention = useStationStore((state) => state.stationPickerAttention);
+  const stationPickerEditing = useStationStore((state) => state.stationPickerEditing);
   const setSelectedStation = useStationStore((state) => state.setSelectedStation);
+  const startStationPickerEditing = useStationStore((state) => state.startStationPickerEditing);
   const [searchValue, setSearchValue] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
   const [isPickerHighlighted, setIsPickerHighlighted] = useState(false);
   const [visibleOptionsLimit, setVisibleOptionsLimit] = useState(INITIAL_VISIBLE_OPTIONS);
   const deferredSearchValue = useDeferredValue(searchValue);
@@ -56,6 +57,12 @@ const StationForm = () => {
       window.clearTimeout(timeout);
     };
   }, [stationPickerAttention]);
+
+  useEffect(() => {
+    if (stationPickerEditing) {
+      setSearchValue('');
+    }
+  }, [stationPickerEditing]);
 
   const stationOptions = useMemo<StationOption[]>(
     () =>
@@ -122,17 +129,16 @@ const StationForm = () => {
       setSelectedStation(newSelectedStation);
       trackStationSelected(newSelectedStation, dataType);
       setSearchValue('');
-      setIsEditing(false);
     }
   };
 
   const handleClear = () => {
     setSearchValue(getStationSearchSeed(selectedStation?.waterName));
     setSelectedStation(null);
-    setIsEditing(true);
+    startStationPickerEditing();
   };
 
-  if (selectedStation && !isEditing) {
+  if (selectedStation && !stationPickerEditing) {
     return (
       <div className={styles.actions}>
         <Tooltip label="Zmień stację" className={styles.editButton}>
@@ -140,8 +146,7 @@ const StationForm = () => {
             variant="subtle"
             color="var(--mantine-primary-color-filled)"
             onClick={() => {
-              setSearchValue(getStationSearchSeed(selectedStation.waterName));
-              setIsEditing(true);
+              startStationPickerEditing();
             }}
             className={styles.editButton}
           >
@@ -162,11 +167,11 @@ const StationForm = () => {
       <div className={isPickerHighlighted ? styles.pickerAttention : undefined}>
         <Select
           searchable
-          value={null}
+          value={selectedStation?.id.toString() ?? null}
           data={visibleOptions}
           placeholder="Wpisz nazwę rzeki, miejscowości lub numer stacji..."
           searchValue={searchValue}
-          autoFocus={isEditing}
+          autoFocus={stationPickerEditing}
           nothingFoundMessage="Brak pasujących stacji"
           maxDropdownHeight={320}
           onSearchChange={setSearchValue}
@@ -228,7 +233,7 @@ const StationForm = () => {
           rightSectionPointerEvents="all"
         />
       </div>
-      <StationStatusLegend freshYear={freshYear} />
+      {!selectedStation && <StationStatusLegend freshYear={freshYear} />}
     </div>
   );
 };

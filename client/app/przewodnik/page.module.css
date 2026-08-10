@@ -1,0 +1,32 @@
+.main {
+  flex: 1;
+  margin-top: 10px;
+}
+
+.article {
+  max-width: 820px;
+}
+
+.article h3 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.article p,
+.article li {
+  line-height: 1.65;
+}
+
+.backLink {
+  width: fit-content;
+  color: var(--mantine-primary-color-filled);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.backLink:hover,
+.backLink:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

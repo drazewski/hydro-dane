@@ -11,6 +11,26 @@
   justify-content: space-between;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guideLink {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.guideLink:hover,
+.guideLink:focus-visible {
+  color: var(--mantine-primary-color-filled);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -43,5 +63,9 @@
   .subtitle {
     font-size: 13px;
     margin-left: 0;
+  }
+
+  .guideLink {
+    font-size: 12px;
   }
 }

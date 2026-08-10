@@ -1,16 +1,20 @@
-.stationPickerHint {
-  padding: 0;
-  color: inherit;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  background: none;
-  border: 0;
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 14px;
 }
 
-.stationPickerHint:hover,
-.stationPickerHint:focus-visible {
-  text-decoration-line: underline;
-  text-decoration-style: dashed;
+.guideLink {
+  width: fit-content;
+  color: var(--mantine-primary-color-filled);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.guideLink:hover,
+.guideLink:focus-visible {
+  text-decoration: underline;
   text-underline-offset: 3px;
 }

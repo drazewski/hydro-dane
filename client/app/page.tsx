@@ -27,6 +27,8 @@ export default function Home() {
   const selectedYearFrom = useStationStore((state) => state.yearFrom);
   const selectedYearTo = useStationStore((state) => state.yearTo);
   const selectedType = useStationStore((state) => state.dataType);
+  const stationPickerEditing = useStationStore((state) => state.stationPickerEditing);
+  const startStationPickerEditing = useStationStore((state) => state.startStationPickerEditing);
   const hasWithdrawnData = selectedStation ? WITHDRAWN_STATION_IDS.has(selectedStation.id) : false;
 
   return (
@@ -34,10 +36,14 @@ export default function Home() {
       <Header />
       <main className={styles.main}>
         <div className={`${styles.titleWrapper} ${selectedStation ? styles.selected : ""}`}>
-          <h2 className={styles.title}>
-            {selectedStation ? `${selectedStation.waterName} - ${selectedStation.name.toUpperCase()}` : 'Wybierz stację pomiarową'}
-            {selectedStation && <span className={styles.stationId}>({selectedStation.id})</span>}
-          </h2>
+          {selectedStation && !stationPickerEditing ? (
+            <button type="button" className={styles.stationTitleButton} onClick={startStationPickerEditing}>
+              {selectedStation.waterName} - {selectedStation.name.toUpperCase()}
+              <span className={styles.stationId}>({selectedStation.id})</span>
+            </button>
+          ) : !selectedStation ? (
+            <h2 className={styles.title}>Wybierz stację pomiarową</h2>
+          ) : null}
           <StationForm />
         </div>
         {!selectedStation && <DataOverview />}

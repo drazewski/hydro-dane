@@ -13,6 +13,7 @@ interface StationStoreType {
   aggregation: ('min' | 'avg' | 'max')[];
   trendLine: 'none' | 'min' | 'avg' | 'max';
   stationPickerAttention: number;
+  stationPickerEditing: boolean;
   setSelectedStation: (station: StationType | null) => void;
   setYearFrom: (year: string | null) => void;
   setYearTo: (year: string | null) => void;
@@ -24,6 +25,7 @@ interface StationStoreType {
   setAggregation: (aggregation: ('min' | 'avg' | 'max')[]) => void;
   setTrendLine: (trendLine: 'none' | 'min' | 'avg' | 'max') => void;
   requestStationPickerAttention: () => void;
+  startStationPickerEditing: () => void;
 }
 
 export const useStationStore = create<StationStoreType>((set) => ({
@@ -38,6 +40,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
   aggregation: ['min','avg','max'],
   trendLine: 'none',
   stationPickerAttention: 0,
+  stationPickerEditing: false,
   setSelectedStation: (newStation) => set(() => ({
     station: newStation,
     yearFrom: null,
@@ -46,6 +49,7 @@ export const useStationStore = create<StationStoreType>((set) => ({
     chartView: 'line',
     selectedMonth: null,
     trendLine: 'none',
+    stationPickerEditing: false,
   })),
   setYearFrom: (year) => set(() => ({ yearFrom: year })),
   setYearTo: (year) => set(() => ({ yearTo: year })),
@@ -58,4 +62,5 @@ export const useStationStore = create<StationStoreType>((set) => ({
   setTrendLine: (trendLine) => set(() => ({ trendLine })),
   requestStationPickerAttention: () =>
     set((state) => ({ stationPickerAttention: state.stationPickerAttention + 1 })),
+  startStationPickerEditing: () => set(() => ({ stationPickerEditing: true })),
 }));

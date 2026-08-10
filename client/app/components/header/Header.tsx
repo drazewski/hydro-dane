@@ -21,9 +21,12 @@ const Header = () => {
             </svg>
             <h1 className={styles.title}>HydroDane</h1>
           </Link>
-        <ActionIcon variant="subtle" color="gray" onClick={toggleColorScheme} aria-label="Zmień motyw">
-          {colorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
-        </ActionIcon>
+        <div className={styles.actions}>
+          <Link href="/przewodnik" className={styles.guideLink}>Jak korzystać</Link>
+          <ActionIcon variant="subtle" color="gray" onClick={toggleColorScheme} aria-label="Zmień motyw">
+            {colorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
+          </ActionIcon>
+        </div>
       </div>
       <h4 className={styles.subtitle}>Interaktywne wykresy archiwalnych danych hydrologicznych. Dane wodowskazów IMGW-PIB: poziom wody, przepływ, temperatura wody.</h4>
     </header>
