@@ -2,6 +2,14 @@
   min-height: 350px;
 }
 
+.fitToWidth {
+  width: 100%;
+}
+
+.fitToWidth :global(.mantine-ScrollArea-viewport) {
+  overflow-x: hidden;
+}
+
 .grid {
   display: grid;
   width: max-content;
@@ -33,6 +41,21 @@
   height: 22px;
   border-radius: 2px;
   transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.fitToWidth .grid {
+  width: 100%;
+}
+
+.fitToWidth .cell {
+  width: auto;
+  height: auto;
+  min-width: 0;
+  aspect-ratio: 1;
+}
+
+.fitToWidth .year {
+  font-size: 8px;
 }
 
 .cell:hover {

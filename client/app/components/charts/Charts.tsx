@@ -9,7 +9,7 @@ import ChartTooltip from '../chartTooltip/ChartTooltip';
 import { WITHDRAWN_DATA_MESSAGE, WITHDRAWN_STATION_IDS } from '../../constants/withdrawnStations';
 import MonthlyHeatmap from '../monthlyHeatmap/MonthlyHeatmap';
 import styles from './charts.module.css';
-import { IconDownload, IconMaximize, IconMinimize } from '@tabler/icons-react';
+import { IconArrowsHorizontal, IconMaximize, IconMinimize } from '@tabler/icons-react';
 
 interface Props {
   selectedStation: StationType;
@@ -20,6 +20,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const chartCardRef = useRef<HTMLElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
+  const [heatmapFitWidth, setHeatmapFitWidth] = useState(false);
   const aggregation = useStationStore((state) => state.aggregation);
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
   const monthlyMode = useStationStore((state) => state.monthlyMode);
@@ -248,33 +249,6 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     await chartCardRef.current.requestFullscreen();
   }, []);
 
-  const exportCsv = useCallback(() => {
-    const headers = [
-      'rok',
-      ...(isMonthlyData ? ['miesiąc'] : []),
-      `minimum_${selectedType}`,
-      `średnia_${selectedType}`,
-      `maksimum_${selectedType}`,
-    ];
-    const rows = data.map((item) => [
-      item.year,
-      ...(isMonthlyData ? [('month' in item ? item.month : '')] : []),
-      item[minLineData as keyof typeof item] ?? '',
-      item[avgLineData as keyof typeof item] ?? '',
-      item[maxLineData as keyof typeof item] ?? '',
-    ]);
-    const csv = [headers, ...rows]
-      .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(';'))
-      .join('\n');
-    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `hydrodane-${selectedType}-${isMonthlyData ? 'miesieczne' : 'roczne'}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }, [avgLineData, data, isMonthlyData, maxLineData, minLineData, selectedType]);
-
   const summary = useMemo(() => {
     const valuesFor = (key: string) =>
       data
@@ -336,11 +310,18 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
             Dane IMGW-PIB
           </div>
           <div className={styles.chartActions}>
-            <Tooltip label="Pobierz dane CSV">
-              <ActionIcon variant="subtle" color="gray" onClick={exportCsv} aria-label="Pobierz dane CSV">
-                <IconDownload size={18} />
-              </ActionIcon>
-            </Tooltip>
+            {isMonthlyData && chartView === 'heatmap' && (
+              <Tooltip label={heatmapFitWidth ? 'Przywróć szerokie komórki' : 'Dopasuj kalendarz do szerokości'}>
+                <ActionIcon
+                  variant={heatmapFitWidth ? 'light' : 'subtle'}
+                  color="gray"
+                  onClick={() => setHeatmapFitWidth((fit) => !fit)}
+                  aria-label={heatmapFitWidth ? 'Przywróć szerokie komórki' : 'Dopasuj kalendarz do szerokości'}
+                >
+                  <IconArrowsHorizontal size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
             <Tooltip label={isFullscreen ? 'Zamknij pełny ekran' : 'Otwórz pełny ekran'}>
               <ActionIcon variant="subtle" color="gray" onClick={toggleFullscreen} aria-label={isFullscreen ? 'Zamknij pełny ekran' : 'Otwórz pełny ekran'}>
                 {isFullscreen ? <IconMinimize size={18} /> : <IconMaximize size={18} />}
@@ -361,6 +342,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
           data={monthlyData ?? []}
           selectedType={selectedType}
           aggregation={aggregation}
+          fitToWidth={heatmapFitWidth}
         />
       ) : (
       <>

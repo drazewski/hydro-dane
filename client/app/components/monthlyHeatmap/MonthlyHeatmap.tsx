@@ -8,6 +8,7 @@ interface Props {
   data: MonthlyStructuredRecordType[];
   selectedType: RecordDataType;
   aggregation: Aggregation[];
+  fitToWidth?: boolean;
 }
 
 const monthLabels = [
@@ -65,7 +66,7 @@ const getTemperatureColor = (value: number) => {
 const formatValue = (value: number, selectedType: RecordDataType) =>
   `${value.toLocaleString('pl-PL', { maximumFractionDigits: selectedType === RecordDataType.flow ? 2 : 1 })} ${units[selectedType]}`;
 
-const MonthlyHeatmap = ({ data, selectedType, aggregation }: Props) => {
+const MonthlyHeatmap = ({ data, selectedType, aggregation, fitToWidth = false }: Props) => {
   const selectedAggregation = getAggregation(aggregation);
   const valueKey = getValueKey(selectedType, selectedAggregation);
   const years = Array.from(new Set(data.map((entry) => entry.year))).sort((left, right) => left - right);
@@ -82,11 +83,15 @@ const MonthlyHeatmap = ({ data, selectedType, aggregation }: Props) => {
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${fitToWidth ? styles.fitToWidth : ''}`}>
       <ScrollArea type="auto" offsetScrollbars>
         <div
           className={styles.grid}
-          style={{ gridTemplateColumns: `44px repeat(${years.length}, 22px)` }}
+          style={{
+            gridTemplateColumns: fitToWidth
+              ? `30px repeat(${years.length}, minmax(0, 1fr))`
+              : `44px repeat(${years.length}, 22px)`,
+          }}
         >
           <div />
           {years.map((year) => (

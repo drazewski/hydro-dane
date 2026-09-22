@@ -1,6 +1,6 @@
 'use client';
 import { useMemo } from 'react';
-import { Table, Text } from '@mantine/core';
+import { Table, Text, Tooltip } from '@mantine/core';
 import { useStationStore } from '../../hooks/useStationStore';
 import { useMonthlyRecords } from '../../hooks/useMonthlyRecords';
 import { useYearlyRecords } from '../../hooks/useYearlyRecords';
@@ -125,9 +125,16 @@ const ExtremumTable = ({ selectedStation }: Props) => {
                 <Text size="sm" c="dimmed" truncate="end" title={label}>{label}</Text>
               </Table.Td>
               <Table.Td className={styles.value}>
-                <Text ta="right" size="sm" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
-                  {value}
-                </Text>
+                <Tooltip label={value} withArrow multiline maw={280} position="top-end">
+                  <Text
+                    ta="right"
+                    size="sm"
+                    className={styles.valueText}
+                    title={value}
+                  >
+                    {value}
+                  </Text>
+                </Tooltip>
               </Table.Td>
             </Table.Tr>
           ))}

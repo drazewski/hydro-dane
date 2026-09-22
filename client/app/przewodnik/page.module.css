@@ -20,6 +20,19 @@
   line-height: 1.65;
 }
 
+.guidePicture {
+  display: block;
+  margin-top: 16px;
+}
+
+.guideImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--hydro-border);
+  border-radius: 12px;
+}
+
 .backLink {
   width: fit-content;
   color: var(--mantine-primary-color-filled);

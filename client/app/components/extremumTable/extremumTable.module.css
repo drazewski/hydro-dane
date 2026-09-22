@@ -16,5 +16,27 @@
 }
 
 .value {
-  width: 170px;
+  width: 190px;
+}
+
+.valueText {
+  display: block;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 430px) {
+  .value {
+    width: 45%;
+  }
+
+  .label {
+    width: 55%;
+  }
+
+  .valueText {
+    font-size: 11px;
+  }
 }
