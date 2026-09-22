@@ -23,6 +23,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const aggregation = useStationStore((state) => state.aggregation);
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
   const monthlyMode = useStationStore((state) => state.monthlyMode);
+  const selectedMonth = useStationStore((state) => state.selectedMonth);
   const chartView = useStationStore((state) => state.chartView);
   const trendLine = useStationStore((state) => state.trendLine);
   const yearFrom = useStationStore((state) => state.yearFrom);
@@ -214,11 +215,16 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     [RecordDataType.flow]: 'Przepływ',
     [RecordDataType.temperature]: 'Temperatura wody',
   }[selectedType];
+  const monthNames = [
+    'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
+    'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień',
+  ];
+  const selectedMonthLabel = selectedMonth ? monthNames[Number(selectedMonth) - 1] : null;
   const unit = getUnit();
   const periodLabel = yearFrom && yearTo ? `${yearFrom}–${yearTo}` : 'wybrany zakres';
   const viewLabel = isMonthlyData
     ? monthlyMode === 'single'
-      ? 'miesięczne · wybrany miesiąc'
+      ? `miesięczne · wybrany miesiąc${selectedMonthLabel ? ` (${selectedMonthLabel})` : ''}`
       : 'miesięczne · wszystkie miesiące'
     : 'roczne';
 
