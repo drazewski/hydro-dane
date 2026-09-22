@@ -14,18 +14,6 @@ const monthLabels = [
   'Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru',
 ];
 
-const typeLabels: Record<RecordDataType, string> = {
-  [RecordDataType.level]: 'stan wody',
-  [RecordDataType.flow]: 'przepływ',
-  [RecordDataType.temperature]: 'temperatura wody',
-};
-
-const aggregationLabels: Record<Aggregation, string> = {
-  min: 'minimalne wartości',
-  avg: 'średnie wartości',
-  max: 'maksymalne wartości',
-};
-
 const units: Record<RecordDataType, string> = {
   [RecordDataType.level]: 'cm',
   [RecordDataType.flow]: 'm³/s',

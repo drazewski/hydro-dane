@@ -3,13 +3,8 @@ import styles from "./footer.module.css";
 
 export function Footer() {
   return (
-    <footer
-      style={{
-        borderTop: "1px solid var(--mantine-color-gray-2)",
-        marginTop: "40px",
-      }}
-    >
-      <div style={{ padding: "var(--mantine-spacing-md) 10px" }}>
+    <footer className={styles.footer}>
+      <div className={styles.inner}>
         <Stack gap="xs">
           <Group gap="xl" wrap="wrap" className={styles.links}>
             <Anchor

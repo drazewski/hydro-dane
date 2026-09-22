@@ -1,0 +1,338 @@
+.card {
+  overflow: hidden;
+  border: 1px solid var(--hydro-border);
+  border-radius: 16px;
+  background: var(--hydro-surface);
+  box-shadow: 0 12px 32px rgb(29 61 87 / 7%);
+  text-align: left;
+}
+
+.card:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: var(--hydro-surface);
+}
+
+.card:fullscreen .plotArea {
+  min-height: calc(100vh - 92px);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 26px 18px;
+  border-bottom: 1px solid var(--hydro-border);
+}
+
+.headerActions,
+.chartActions {
+  display: flex;
+  align-items: center;
+}
+
+.headerActions {
+  gap: 10px;
+}
+
+.chartActions {
+  gap: 2px;
+}
+
+.title {
+  color: var(--mantine-color-text);
+  font-family: var(--font-jura-medium, Arial), var(--font-montserrat, Arial), system-ui, sans-serif;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.stationContext {
+  display: none;
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.card:fullscreen .stationContext {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  margin-top: 7px;
+  color: var(--mantine-color-dimmed);
+  font-size: 13px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #36a269;
+  box-shadow: 0 0 0 4px rgb(54 162 105 / 14%);
+}
+
+.plotArea {
+  padding: 12px 18px 18px;
+}
+
+.chartFrame {
+  position: relative;
+}
+
+.legendControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  margin: 0 8px 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.legendButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid var(--hydro-border);
+  border-radius: 999px;
+  background: var(--hydro-surface);
+  color: var(--mantine-color-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  transition: opacity 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.legendButton:hover,
+.legendButton:focus-visible {
+  border-color: var(--mantine-primary-color-filled);
+  background: var(--hydro-surface-muted);
+}
+
+.legendButtonHidden {
+  opacity: 0.45;
+}
+
+.legendSwatch {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.loading {
+  display: flex;
+  min-height: 360px;
+  align-items: center;
+  justify-content: center;
+}
+
+.message {
+  padding: 48px 12px;
+  text-align: center;
+}
+
+.emptyState,
+.withdrawnOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.withdrawnOverlay {
+  padding: 14px 18px;
+  background: light-dark(rgb(255 255 255 / 50%), rgb(10 10 10 / 45%));
+  backdrop-filter: grayscale(1);
+}
+
+.withdrawnMessage {
+  padding: 8px 12px;
+  border: 1px solid light-dark(rgb(143 31 31 / 20%), rgb(241 199 199 / 35%));
+  border-radius: 999px;
+  background: light-dark(rgb(255 255 255 / 92%), rgb(30 30 30 / 85%));
+  text-align: center;
+  box-shadow: 0 10px 24px rgb(80 80 80 / 12%);
+}
+
+.source {
+  margin: 14px 4px 0;
+  max-width: 720px;
+  margin-right: auto;
+  margin-left: auto;
+  color: var(--mantine-color-dimmed);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.source a {
+  color: inherit;
+  font-weight: 600;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.summaryCard {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid var(--hydro-border);
+  border-radius: 10px;
+  background: var(--hydro-surface-muted);
+}
+
+.summaryCardPrimary {
+  border-color: color-mix(in srgb, var(--mantine-primary-color-filled) 42%, var(--hydro-border));
+  background: color-mix(in srgb, var(--mantine-primary-color-filled) 7%, var(--hydro-surface));
+}
+
+.summaryCardTrend {
+  border-style: dashed;
+}
+
+.summaryLabel {
+  color: var(--mantine-color-dimmed);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.summaryValue {
+  margin-top: 5px;
+  overflow: hidden;
+  color: var(--mantine-color-text);
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summaryMeta {
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--mantine-color-dimmed);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 18px 16px 15px;
+  }
+
+  .status {
+    display: none;
+  }
+
+  .headerActions {
+    align-self: flex-start;
+  }
+
+  .plotArea {
+    padding: 8px 4px 14px;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-inline: 8px;
+  }
+
+  .source {
+    padding-inline: 8px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 430px) {
+.card {
+    border-radius: 12px;
+  }
+
+  .header {
+    gap: 8px;
+    padding: 14px 12px 12px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    max-width: 280px;
+    margin-top: 5px;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .plotArea {
+    padding: 4px 0 10px;
+  }
+
+  .legendControls {
+    margin-inline: 6px;
+  }
+
+  .summary {
+    gap: 6px;
+    margin-inline: 6px;
+  }
+
+  .summaryCard {
+    padding: 9px 10px;
+    border-radius: 8px;
+  }
+
+  .summaryLabel {
+    font-size: 9px;
+  }
+
+  .summaryValue {
+    margin-top: 4px;
+    font-size: 14px;
+  }
+
+  .summaryMeta {
+    margin-top: 3px;
+    font-size: 9px;
+  }
+
+  .source {
+    margin-top: 10px;
+    padding-inline: 10px;
+    font-size: 9px;
+    line-height: 1.35;
+  }
+}

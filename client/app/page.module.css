@@ -1,9 +1,12 @@
 .main {
+  width: min(100%, 1200px);
+  margin-right: auto;
+  margin-left: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   grid-row-start: 2;
-  margin-top: 10px;
+  margin-top: 4px;
   flex: 1;
 }
 
@@ -17,6 +20,7 @@
   margin-bottom: 12px;
   min-width: 0;
   flex-direction: column;
+  padding: 2px 0;
 
   @media (max-width: 600px) {
     justify-content: space-between;
@@ -24,8 +28,9 @@
 }
 
 .title {
-  font-weight: 400;
-  font-size: 20px;
+  color: var(--mantine-color-text);
+  font-weight: 500;
+  font-size: 22px;
   line-height: 1;
   min-width: 0;
 }
@@ -35,8 +40,8 @@
   padding: 0;
   color: inherit;
   font: inherit;
-  font-size: 20px;
-  font-weight: 400;
+  font-size: 22px;
+  font-weight: 500;
   line-height: 1;
   text-align: left;
   cursor: pointer;
@@ -52,9 +57,9 @@
 }
 
 .stationId {
-  font-size: 18px;
-  color: #555;
-  font-weight: 300;
+  font-size: 14px;
+  color: var(--mantine-color-dimmed);
+  font-weight: 500;
   padding-left: 8px;
   
   @media (max-width: 600px) {
@@ -65,20 +70,66 @@
 .selected {
   align-items: center;
   flex-direction: row;
+  padding: 14px 16px;
+  border: 1px solid var(--hydro-border);
+  border-radius: 14px;
+  background: var(--hydro-surface);
+  box-shadow: 0 8px 24px rgb(29 61 87 / 5%);
 }
 
 @media (max-width: 600px) {
+  .selected {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 8px;
+    padding: 12px;
+  }
+
   .stationTitleButton {
-    font-size: 20px;
+    flex: 1 1 auto;
+    font-size: 18px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 430px) {
+  .main {
+    gap: 10px;
+  }
+
+  .titleWrapper {
+    margin-bottom: 6px;
+  }
+
+  .selected {
+    align-items: flex-start;
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .stationTitleButton {
+    flex: 1 1 auto;
+    font-size: 16px;
+  }
+
+  .stationId {
+    padding-left: 4px;
+    font-size: 11px;
+  }
+
+  .subtitleWrapper {
+    margin-bottom: 4px;
+    font-size: 13px;
   }
 }
 
 .subtitleWrapper {
-  color: #615862;
+  color: var(--mantine-color-dimmed);
   font-size: 16px;
   margin-bottom: 10px;
   text-align: center;
-  font-family: var(--font-open-sans), system-ui, sans-serif;
+  font-family: var(--font-montserrat, Arial), system-ui, sans-serif;
 }
 
 .name {
@@ -90,7 +141,7 @@
   font-size: 16px;
   text-align: center;
   margin-top: 10px;
-  font-family: var(--font-open-sans), system-ui, sans-serif;
+  font-family: var(--font-montserrat, Arial), system-ui, sans-serif;
 }
 
 .footerText2 {
@@ -98,5 +149,5 @@
   font-weight: 800;
   color: #d43e3e;
   text-align: center;
-  font-family: var(--font-open-sans), system-ui, sans-serif;
+  font-family: var(--font-montserrat, Arial), system-ui, sans-serif;
 }

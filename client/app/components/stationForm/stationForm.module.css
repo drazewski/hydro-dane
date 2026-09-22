@@ -63,6 +63,11 @@
 }
 
 @media (max-width: 768px) {
+  .actions {
+    align-self: flex-start;
+    justify-content: flex-end;
+  }
+
   .editButton {
     display: none;
   }

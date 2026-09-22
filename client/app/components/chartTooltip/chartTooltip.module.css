@@ -1,0 +1,14 @@
+.tooltip {
+  min-width: 150px;
+  max-width: min(260px, calc(100vw - 24px));
+  border-color: var(--hydro-border);
+}
+
+.label {
+  color: var(--mantine-color-text);
+  font-size: 12px;
+}
+
+.value {
+  line-height: 1.45;
+}

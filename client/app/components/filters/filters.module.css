@@ -4,17 +4,20 @@
 
 .container {
   width: 100%;
-  margin-bottom: 30px;
-  border: 1px solid var(--mantine-color-gray-3);
-  border-radius: var(--mantine-radius-md);
-  background: var(--mantine-color-body);
+  margin-bottom: 12px;
+  overflow: visible;
+  border: 1px solid var(--hydro-border);
+  border-radius: 14px;
+  background: var(--hydro-surface);
+  box-shadow: 0 8px 24px rgb(29 61 87 / 5%);
 }
 
 .toolbar {
+  position: relative;
   display: flex;
   align-items: flex-end;
-  gap: 16px;
-  padding: 14px 16px;
+  gap: 18px;
+  padding: 16px 18px 42px;
   flex-wrap: wrap;
 }
 
@@ -30,6 +33,18 @@
   font-size: var(--mantine-font-size-xs);
   font-weight: 600;
   line-height: 1;
+}
+
+.dataTypeField {
+  flex: 1 1 310px;
+}
+
+.dataTypeControl {
+  width: 100%;
+}
+
+.dataTypeControl :global(.mantine-SegmentedControl-label) {
+  padding-inline: 14px;
 }
 
 .selectInput,
@@ -51,14 +66,54 @@
 }
 
 .optionsTrigger {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 5px;
   margin-left: auto;
+  align-self: flex-start;
+  padding-top: 18px;
+}
+
+.optionsButtonContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.optionsButtonWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.optionsButton {
+  position: relative;
+  height: 34px;
+  padding-inline: 10px;
+}
+
+.optionsCount {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  z-index: 1;
+  display: flex;
+  min-width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--mantine-primary-color-light);
+  color: var(--mantine-primary-color-filled);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .optionSummary {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
   max-width: 190px;
   overflow: hidden;
   color: var(--mantine-color-dimmed);
@@ -71,9 +126,9 @@
   display: flex;
   align-items: flex-start;
   gap: 20px 28px;
-  padding: 14px 16px 16px;
-  border-top: 1px solid var(--mantine-color-gray-3);
-  background: var(--mantine-color-gray-0);
+  padding: 18px;
+  border-top: 1px solid var(--hydro-border);
+  background: var(--hydro-surface-muted);
   flex-wrap: wrap;
 }
 
@@ -106,6 +161,21 @@
   white-space: nowrap;
 }
 
+.optionsFooter {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 5px;
+  border-top: 1px solid var(--hydro-border);
+}
+
+.optionsHint {
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-xs);
+}
+
 .inlineGroup [role="radiogroup"],
 .inlineGroup [role="group"] {
   display: flex;
@@ -115,12 +185,7 @@
 }
 
 :global([data-mantine-color-scheme='dark']) .container {
-  border-color: var(--mantine-color-dark-4);
-}
-
-:global([data-mantine-color-scheme='dark']) .optionsPanel {
-  border-color: var(--mantine-color-dark-4);
-  background: var(--mantine-color-dark-6);
+  border-color: var(--hydro-border);
 }
 
 @media (max-width: 768px) {
@@ -139,23 +204,40 @@
     width: 100% !important;
   }
 
+  .dataTypeField {
+    grid-column: 1 / -1;
+  }
+
+  .dataTypeControl {
+    width: 100%;
+  }
+
   .aggregationField :global(.mantine-SegmentedControl-root) {
     width: 100%;
   }
 
+  .aggregationField {
+    min-width: 0;
+  }
+
   .yearsField {
-    grid-column: 1;
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 
   .optionsTrigger {
+    position: static;
     grid-column: 2;
+    grid-row: 2;
     align-items: flex-end;
     margin-left: 0;
+    align-self: center;
+    padding-top: 0;
   }
 
   .optionsButton {
     min-width: 48px;
-    height: 42px;
+    height: 40px;
     padding: 3px 8px;
   }
 
@@ -169,6 +251,7 @@
   }
 
   .optionSummary {
+    position: static;
     display: none;
   }
 
@@ -176,6 +259,12 @@
     padding: 14px;
     flex-direction: column;
     gap: 18px;
+  }
+
+  .optionsFooter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .optionField,
@@ -214,15 +303,64 @@
 }
 
 @media (max-width: 480px) {
-  .yearsField,
-  .optionsTrigger {
-    grid-column: 1 / -1;
+  .aggregationField {
+    grid-column: 1;
     grid-row: 2;
   }
 
+  .yearsField {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
   .optionsTrigger {
+    grid-column: 2;
+    grid-row: 2;
     justify-self: end;
     align-self: center;
+  }
+}
+
+@media (max-width: 430px) {
+  .container {
+    margin-bottom: 18px;
+    border-radius: 12px;
+  }
+
+  .toolbar {
+    gap: 8px 10px;
+    padding: 8px 9px 10px;
+  }
+
+  .dataTypeControl :global(.mantine-SegmentedControl-label) {
+    padding-inline: 7px;
+    font-size: 12px;
+  }
+
+  .aggregationField {
+    min-width: 0;
+  }
+
+  .yearsField :global(.mantine-Select-input) {
+    min-height: 38px;
+  }
+
+  .optionsPanel {
+    gap: 14px;
+    padding: 12px 10px;
+  }
+
+  .fieldLabel {
+    font-size: 11px;
+  }
+
+  .inlineGroup [role="radiogroup"],
+  .inlineGroup [role="group"] {
+    gap: 7px;
+  }
+
+  .optionsHint {
+    font-size: 10px;
   }
 }
 

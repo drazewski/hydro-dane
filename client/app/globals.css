@@ -10,17 +10,28 @@ html {
 
 body {
   color: var(--mantine-color-text);
-  background: var(--mantine-color-body);
-  width: 100vw;
-  max-width: 1200px;
-  margin: auto !important;
-  padding: 0 10px;
-  font-family: var(--font-open-sans), system-ui, sans-serif;
+  background: var(--hydro-page-bg);
+  width: 100%;
+  max-width: none;
+  margin: 0 !important;
+  padding: 0 24px;
+  font-family: var(--font-montserrat, Arial), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+::selection {
+  color: var(--mantine-color-white);
+  background: var(--mantine-primary-color-filled);
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 0 14px;
+  }
 }
 
 * {

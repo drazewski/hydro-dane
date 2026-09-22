@@ -1,4 +1,7 @@
 .main {
+  width: min(100%, 1200px);
+  margin-right: auto;
+  margin-left: auto;
   flex: 1;
   margin-top: 10px;
 }

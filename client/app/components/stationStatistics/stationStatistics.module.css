@@ -1,7 +1,8 @@
 .container {
-  color: #000;
+  color: var(--mantine-color-text);
   text-align: left;
-  border-color: #228be6;
+  border-color: var(--hydro-border);
+  background: var(--hydro-surface);
 }
 
 .header {
@@ -11,6 +12,19 @@
   gap: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.toggle {
+  display: none;
+}
+
+.toggleIcon,
+.toggleIconOpen {
+  transition: transform 160ms ease;
+}
+
+.toggleIconOpen {
+  transform: rotate(180deg);
 }
 
 .details {
@@ -55,6 +69,20 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    margin-top: 24px;
+    padding: 14px;
+  }
+
+  .header {
+    gap: 14px;
+  }
+
+  .toggle {
+    display: inline-flex;
+    align-self: flex-start;
+  }
+
   .details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -62,5 +90,40 @@
   .tables {
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+}
+
+@media (max-width: 430px) {
+  .container {
+    padding: 10px;
+  }
+
+  .header {
+    padding-bottom: 12px;
+  }
+
+  .header > div:first-child > :first-child {
+    font-size: 15px;
+  }
+
+  .header > div:first-child > :last-child {
+    font-size: 11px;
+  }
+
+  .details {
+    gap: 9px 12px;
+  }
+
+  .details dt {
+    font-size: 10px;
+  }
+
+  .details dd {
+    font-size: 11px;
+  }
+
+  .tables {
+    gap: 22px;
+    padding-top: 14px;
   }
 }

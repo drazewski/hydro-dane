@@ -1,6 +1,6 @@
 import { Button, Checkbox, Collapse, ComboboxItem, Loader, Radio, SegmentedControl, Select, Text, useMantineColorScheme } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
+import { IconAdjustmentsHorizontal, IconRefresh } from '@tabler/icons-react';
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
 import styles from "./filters.module.css";
@@ -281,6 +281,23 @@ const Filters = ({ selectedStation }: Props) => {
     return trendLine === 'none' ? selectedSeries : `${selectedSeries} · trend`;
   }, [aggregations, isHeatmap, selectedHeatmapAggregation, trendLine]);
 
+  const advancedOptionCount = useMemo(() => {
+    let count = 0;
+    if (isMonthlyData && monthlyMode !== 'all') count += 1;
+    if (isHeatmap) count += 1;
+    if (aggregations.length !== 3) count += 1;
+    if (trendLine !== 'none') count += 1;
+    return count;
+  }, [aggregations.length, isHeatmap, isMonthlyData, monthlyMode, trendLine]);
+
+  const handleResetOptions = () => {
+    setMonthlyMode('all');
+    setSelectedMonth(null);
+    setChartView('line');
+    setAggregation(['min', 'avg', 'max']);
+    setTrendLine('none');
+  };
+
   return (
     <div>
       {isLoading ? (
@@ -292,16 +309,16 @@ const Filters = ({ selectedStation }: Props) => {
           <div className={styles.toolbar}>
             <div className={`${styles.field} ${styles.dataTypeField}`}>
               <Text className={styles.fieldLabel}>Zakres danych</Text>
-              <Select
+              <SegmentedControl
+                className={styles.dataTypeControl}
                 data={DATA_TYPE_OPTIONS}
                 value={dataType}
                 onChange={handleDataTypeChange}
-                classNames={{ option: styles.option, input: styles.selectInput }}
-                w={isCompactMobile ? 116 : isMobile ? 142 : 174}
+                size={isCompactMobile ? 'xs' : 'sm'}
               />
             </div>
             <div className={`${styles.field} ${styles.aggregationField}`}>
-              <Text className={styles.fieldLabel}>Agregacja</Text>
+              <Text className={styles.fieldLabel}>Częstotliwość</Text>
               <SegmentedControl
                 value={isMonthlyData ? 'monthly' : 'yearly'}
                 onChange={handleDataAggregationModeChange}
@@ -337,21 +354,33 @@ const Filters = ({ selectedStation }: Props) => {
               </div>
             </div>
             <div className={styles.optionsTrigger}>
-              <Button
-                variant={optionsOpened ? 'light' : 'default'}
-                size={isCompactMobile ? 'xs' : 'sm'}
-                className={styles.optionsButton}
-                onClick={() => setOptionsOpened((opened) => !opened)}
-                rightSection={isMobile ? undefined : <span aria-hidden="true">{optionsOpened ? '−' : '+'}</span>}
-                aria-expanded={optionsOpened}
-              >
-                {isMobile ? (
-                  <span className={styles.optionsButtonContent}>
-                    <IconAdjustmentsHorizontal size={17} stroke={1.8} />
-                    <span>Opcje</span>
+              <div className={styles.optionsButtonWrap}>
+                <Button
+                  variant={optionsOpened ? 'light' : 'default'}
+                  size={isCompactMobile ? 'xs' : 'sm'}
+                  className={styles.optionsButton}
+                  onClick={() => setOptionsOpened((opened) => !opened)}
+                  rightSection={isMobile ? undefined : <span aria-hidden="true">{optionsOpened ? '−' : '+'}</span>}
+                  aria-expanded={optionsOpened}
+                >
+                  {isMobile ? (
+                    <span className={styles.optionsButtonContent}>
+                      <IconAdjustmentsHorizontal size={17} stroke={1.8} />
+                      <span>Opcje</span>
+                    </span>
+                  ) : (
+                    <span className={styles.optionsButtonContent}>
+                      <IconAdjustmentsHorizontal size={16} stroke={1.8} />
+                      <span>Opcje wykresu</span>
+                    </span>
+                  )}
+                </Button>
+                {advancedOptionCount > 0 && (
+                  <span className={styles.optionsCount} aria-label={`${advancedOptionCount} aktywne opcje`}>
+                    {advancedOptionCount}
                   </span>
-                ) : 'Opcje wykresu'}
-              </Button>
+                )}
+              </div>
               <Text className={styles.optionSummary}>{optionSummary}</Text>
             </div>
           </div>
@@ -447,6 +476,18 @@ const Filters = ({ selectedStation }: Props) => {
                   </div>
                 </div>
               )}
+              <div className={styles.optionsFooter}>
+                <Text className={styles.optionsHint}>Opcje wpływają na aktualny wykres.</Text>
+                <Button
+                  variant="subtle"
+                  color="gray"
+                  size="xs"
+                  leftSection={<IconRefresh size={14} />}
+                  onClick={handleResetOptions}
+                >
+                  Resetuj opcje
+                </Button>
+              </div>
             </div>
           </Collapse>
         </div>

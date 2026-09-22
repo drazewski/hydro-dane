@@ -1,6 +1,9 @@
 'use client';
 
-import { Paper, Text } from '@mantine/core';
+import { Button, Collapse, Paper, Text } from '@mantine/core';
+import { IconChevronDown } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from '@mantine/hooks';
 import CharacteristicFlows from '../characteristicFlows/CharacteristicFlows';
 import ExtremumTable from '../extremumTable/ExtremumTable';
 import { StationType } from '../../types/recordTypes';
@@ -21,6 +24,8 @@ const formatNumber = (value: number | null, suffix: string) =>
   value == null ? '—' : `${value.toLocaleString('pl-PL', { maximumFractionDigits: 3 })} ${suffix}`;
 
 const StationStatistics = ({ selectedStation }: Props) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [tablesOpen, setTablesOpen] = useState(true);
   const { data: detailsByStation } = useStationDetails();
   const details = detailsByStation?.[selectedStation.id];
   const stationDetails = [
@@ -31,6 +36,10 @@ const StationStatistics = ({ selectedStation }: Props) => {
     ['Kilometr biegu rzeki', formatNumber(details?.riverKilometre ?? null, 'km')],
   ] as const;
 
+  useEffect(() => {
+    setTablesOpen(!isMobile);
+  }, [isMobile]);
+
   return (
     <Paper withBorder radius="md" p="md" mt="xl" className={styles.container}>
       <div className={styles.header}>
@@ -40,6 +49,17 @@ const StationStatistics = ({ selectedStation }: Props) => {
             {selectedStation.waterName} — {selectedStation.name.toUpperCase()}
           </Text>
         </div>
+        <Button
+          className={styles.toggle}
+          variant="subtle"
+          color="gray"
+          size="xs"
+          onClick={() => setTablesOpen((open) => !open)}
+          rightSection={<IconChevronDown className={tablesOpen ? styles.toggleIconOpen : styles.toggleIcon} size={15} />}
+          aria-expanded={tablesOpen}
+        >
+          {tablesOpen ? 'Zwiń zestawienie' : 'Pokaż zestawienie'}
+        </Button>
         {details && (
           <dl className={styles.details}>
             {stationDetails.map(([label, value]) => (
@@ -51,10 +71,12 @@ const StationStatistics = ({ selectedStation }: Props) => {
           </dl>
         )}
       </div>
-      <div className={styles.tables}>
-        <CharacteristicFlows selectedStation={selectedStation} />
-        <ExtremumTable selectedStation={selectedStation} />
-      </div>
+      <Collapse in={tablesOpen}>
+        <div className={styles.tables}>
+          <CharacteristicFlows selectedStation={selectedStation} />
+          <ExtremumTable selectedStation={selectedStation} />
+        </div>
+      </Collapse>
     </Paper>
   );
 };

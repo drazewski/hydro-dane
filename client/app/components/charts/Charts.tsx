@@ -1,13 +1,15 @@
 import { LineChart } from '@mantine/charts';
-import { Loader, Text, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Loader, Text, Tooltip, useMantineColorScheme } from '@mantine/core';
 import { MonthlyStructuredRecordType, RecordDataType, StationType, YearlyRecordType } from "../../types/recordTypes";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStationStore } from '../../hooks/useStationStore';
 import { useYearlyRecords } from '../../hooks/useYearlyRecords';
 import ChartTooltip from '../chartTooltip/ChartTooltip';
 import { WITHDRAWN_DATA_MESSAGE, WITHDRAWN_STATION_IDS } from '../../constants/withdrawnStations';
 import MonthlyHeatmap from '../monthlyHeatmap/MonthlyHeatmap';
+import styles from './charts.module.css';
+import { IconDownload, IconMaximize, IconMinimize } from '@tabler/icons-react';
 
 interface Props {
   selectedStation: StationType;
@@ -15,15 +17,20 @@ interface Props {
 }
 
 const Charts = ({ selectedStation, selectedType }: Props) => {
+  const chartCardRef = useRef<HTMLElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
   const aggregation = useStationStore((state) => state.aggregation);
   const isMonthlyData = useStationStore((state) => state.isMonthlyData);
   const monthlyMode = useStationStore((state) => state.monthlyMode);
   const chartView = useStationStore((state) => state.chartView);
   const trendLine = useStationStore((state) => state.trendLine);
+  const yearFrom = useStationStore((state) => state.yearFrom);
+  const yearTo = useStationStore((state) => state.yearTo);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
-  const tickColor = isDark ? '#aaa' : '#444';
-  const gridColor = isDark ? '#333' : '#e0e0e0';
+  const tickColor = isDark ? '#c4d0da' : '#444';
+  const gridColor = isDark ? '#3a4a57' : '#e0e0e0';
   const hasWithdrawnData = WITHDRAWN_STATION_IDS.has(selectedStation.id);
   const { data: monthlyData, isLoading: isLoadingMonthly, isError: isErrorMonthly } = useMonthlyRecords(selectedStation?.id, isMonthlyData);
   const { data: yearlyData, isLoading: isLoadingYearly, isError: isErrorYearly } = useYearlyRecords(selectedStation?.id, isMonthlyData);
@@ -48,9 +55,9 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const maxLineData = `max${capitalizedType}`;
   const lineColors = useMemo(
     () => ({
-      min: isDark ? 'white' : 'black',
-      avg: 'blue',
-      max: 'red',
+      min: isDark ? '#b8c5d0' : '#536575',
+      avg: isDark ? '#63b3ed' : '#217fc2',
+      max: isDark ? '#ff9b7a' : '#d95d39',
     }),
     [isDark]
   );
@@ -175,6 +182,23 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     return series;
   }, [aggregation, avgLineData, lineColors, maxLineData, minLineData, trendLine, trendMeta]);
 
+  useEffect(() => {
+    setHiddenSeries([]);
+  }, [aggregation, isMonthlyData, maxLineData, minLineData, monthlyMode, selectedType, trendLine]);
+
+  const chartSeries = useMemo(
+    () => createSeries().filter((series) => !hiddenSeries.includes(series.name)),
+    [createSeries, hiddenSeries]
+  );
+
+  const toggleSeries = (seriesName: string) => {
+    setHiddenSeries((current) =>
+      current.includes(seriesName)
+        ? current.filter((name) => name !== seriesName)
+        : [...current, seriesName]
+    );
+  };
+
   const maxTemperature = useMemo(() => {
     if (aggregation.includes('max')) {
       return 28;
@@ -185,14 +209,147 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     }
   }, [aggregation]);
 
+  const dataTypeLabel = {
+    [RecordDataType.level]: 'Stan wody',
+    [RecordDataType.flow]: 'Przepływ',
+    [RecordDataType.temperature]: 'Temperatura wody',
+  }[selectedType];
+  const unit = getUnit();
+  const periodLabel = yearFrom && yearTo ? `${yearFrom}–${yearTo}` : 'wybrany zakres';
+  const viewLabel = isMonthlyData
+    ? monthlyMode === 'single'
+      ? 'miesięczne · wybrany miesiąc'
+      : 'miesięczne · wszystkie miesiące'
+    : 'roczne';
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === chartCardRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!chartCardRef.current) return;
+
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await chartCardRef.current.requestFullscreen();
+  }, []);
+
+  const exportCsv = useCallback(() => {
+    const headers = [
+      'rok',
+      ...(isMonthlyData ? ['miesiąc'] : []),
+      `minimum_${selectedType}`,
+      `średnia_${selectedType}`,
+      `maksimum_${selectedType}`,
+    ];
+    const rows = data.map((item) => [
+      item.year,
+      ...(isMonthlyData ? [('month' in item ? item.month : '')] : []),
+      item[minLineData as keyof typeof item] ?? '',
+      item[avgLineData as keyof typeof item] ?? '',
+      item[maxLineData as keyof typeof item] ?? '',
+    ]);
+    const csv = [headers, ...rows]
+      .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(';'))
+      .join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `hydrodane-${selectedType}-${isMonthlyData ? 'miesieczne' : 'roczne'}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [avgLineData, data, isMonthlyData, maxLineData, minLineData, selectedType]);
+
+  const summary = useMemo(() => {
+    const valuesFor = (key: string) =>
+      data
+        .map((item) => {
+          const value = item[key as keyof typeof item];
+          return typeof value === 'number' ? value : null;
+        })
+        .filter((value): value is number => value !== null);
+    const average = (values: number[]) =>
+      values.length === 0 ? null : values.reduce((sum, value) => sum + value, 0) / values.length;
+    const metricRows = data.filter((item) =>
+      [minLineData, avgLineData, maxLineData].some((key) => {
+        const value = item[key as keyof typeof item];
+        return typeof value === 'number';
+      })
+    ).length;
+    const selectedFrom = yearFrom ? Number(yearFrom) : null;
+    const selectedTo = yearTo ? Number(yearTo) : null;
+    const yearCount = selectedFrom != null && selectedTo != null
+      ? Math.max(0, selectedTo - selectedFrom + 1)
+      : new Set(data.map((item) => item.year)).size;
+    const expectedRows = isMonthlyData
+      ? yearCount * (monthlyMode === 'single' ? 1 : 12)
+      : yearCount;
+    const completeness = expectedRows > 0 ? Math.round((metricRows / expectedRows) * 100) : null;
+
+    return {
+      min: Math.min(...valuesFor(minLineData)),
+      avg: average(valuesFor(avgLineData)),
+      max: Math.max(...valuesFor(maxLineData)),
+      completeness,
+      metricRows,
+      expectedRows,
+    };
+  }, [avgLineData, data, isMonthlyData, maxLineData, minLineData, monthlyMode, yearFrom, yearTo]);
+
+  const formatSummaryValue = useCallback((value: number | null) => {
+    if (value == null || !Number.isFinite(value)) return '—';
+    return `${value.toLocaleString('pl-PL', {
+      maximumFractionDigits: selectedType === RecordDataType.flow ? 2 : 1,
+    })} ${unit}`;
+  }, [selectedType, unit]);
+
   return (
-    <div>
+    <section ref={chartCardRef} className={styles.card} aria-label={`Wykres: ${dataTypeLabel}`}>
+      <header className={styles.header}>
+        <div>
+          <Text className={styles.stationContext}>
+            {selectedStation.waterName} — {selectedStation.name.toUpperCase()} ({selectedStation.id})
+          </Text>
+          <Text className={styles.title}>{dataTypeLabel}</Text>
+          <Text className={styles.subtitle}>
+            {viewLabel} · {periodLabel} · jednostka: {unit}
+          </Text>
+        </div>
+        <div className={styles.headerActions}>
+          <div className={styles.status} aria-live="polite">
+            <span className={styles.statusDot} />
+            Dane IMGW-PIB
+          </div>
+          <div className={styles.chartActions}>
+            <Tooltip label="Pobierz dane CSV">
+              <ActionIcon variant="subtle" color="gray" onClick={exportCsv} aria-label="Pobierz dane CSV">
+                <IconDownload size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={isFullscreen ? 'Zamknij pełny ekran' : 'Otwórz pełny ekran'}>
+              <ActionIcon variant="subtle" color="gray" onClick={toggleFullscreen} aria-label={isFullscreen ? 'Zamknij pełny ekran' : 'Otwórz pełny ekran'}>
+                {isFullscreen ? <IconMinimize size={18} /> : <IconMaximize size={18} />}
+              </ActionIcon>
+            </Tooltip>
+          </div>
+        </div>
+      </header>
+      <div className={styles.plotArea}>
       {(isLoadingMonthly || isLoadingYearly) ? (
-        <div style={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className={styles.loading}>
           <Loader color="blue" size="xl" type="bars" />
         </div>
       ) : (isErrorMonthly || isErrorYearly) ? (
-        <Text c="red">Błąd ładowania danych wykresu. Spróbuj ponownie.</Text>
+        <Text c="red" className={styles.message}>Błąd ładowania danych wykresu. Spróbuj ponownie.</Text>
       ) : chartView === 'heatmap' && isMonthlyData ? (
         <MonthlyHeatmap
           data={monthlyData ?? []}
@@ -201,12 +358,29 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
         />
       ) : (
       <>
-      <div style={{ position: 'relative' }}>
+      <div className={styles.chartFrame}>
+        <div className={styles.legendControls} aria-label="Serie na wykresie">
+          {createSeries().map((series) => {
+            const isHidden = hiddenSeries.includes(series.name);
+            return (
+              <button
+                type="button"
+                key={series.name}
+                className={`${styles.legendButton} ${isHidden ? styles.legendButtonHidden : ''}`}
+                aria-pressed={!isHidden}
+                onClick={() => toggleSeries(series.name)}
+              >
+                <span className={styles.legendSwatch} style={{ backgroundColor: series.color }} />
+                <span>{series.label}</span>
+              </button>
+            );
+          })}
+        </div>
         <LineChart
-          h={350}
+          h={{ base: 360, sm: 460 }}
           data={dataWithTrend}
           dataKey="label"
-          series={createSeries()}
+          series={chartSeries}
           curveType="monotone"
           tickLine="x"
           gridAxis="xy"
@@ -216,7 +390,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
               fill: tickColor,
               fontSize: 12,
               fontWeight: 500,
-              fontFamily: 'Poppins, sans-serif',
+              fontFamily: 'var(--font-montserrat, Arial), system-ui, sans-serif',
             },
             axisLine: { stroke: gridColor },
           }}
@@ -231,7 +405,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
               fill: tickColor,
               fontSize: 12,
               fontWeight: 500,
-              fontFamily: 'Poppins, sans-serif',
+              fontFamily: 'var(--font-montserrat, Arial), system-ui, sans-serif',
             },
             tickFormatter: (v) => `${v} ${getUnit()}`,
             axisLine: { stroke: gridColor },
@@ -242,10 +416,10 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
           }}
           legendProps={{
             verticalAlign: 'bottom',
-            height: 50,
+            height: 42,
             wrapperStyle: {
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: 18,
+              fontFamily: 'var(--font-montserrat, Arial), system-ui, sans-serif',
+              fontSize: 13,
               color: tickColor,
             },
           }}
@@ -265,54 +439,62 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
                 }
           }
         />
-        {!hasData && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-            <Text size="lg" c="dimmed">Brak danych do wyświetlenia</Text>
+        {(!hasData || chartSeries.length === 0) && (
+          <div className={styles.emptyState}>
+            <Text size="lg" c="dimmed">
+              {chartSeries.length === 0 && hasData ? 'Wybierz serię w legendzie' : 'Brak danych do wyświetlenia'}
+            </Text>
           </div>
         )}
         {hasWithdrawnData && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '14px 18px',
-              background: isDark ? 'rgba(10, 10, 10, 0.45)' : 'rgba(255, 255, 255, 0.5)',
-              backdropFilter: 'grayscale(1)',
-              WebkitBackdropFilter: 'grayscale(1)',
-              pointerEvents: 'none',
-              borderRadius: 4,
-            }}
-          >
+          <div className={styles.withdrawnOverlay}>
             <Text
               size="sm"
               fw={800}
               c={isDark ? '#f1c7c7' : '#8f1f1f'}
-              style={{
-                background: isDark ? 'rgba(30, 30, 30, 0.85)' : 'rgba(255, 255, 255, 0.92)',
-                padding: '8px 12px',
-                borderRadius: 999,
-                border: `1px solid ${isDark ? 'rgba(241, 199, 199, 0.35)' : 'rgba(143, 31, 31, 0.2)'}`,
-                textAlign: 'center',
-                boxShadow: isDark ? '0 10px 24px rgba(0, 0, 0, 0.22)' : '0 10px 24px rgba(80, 80, 80, 0.12)',
-              }}
+              className={styles.withdrawnMessage}
             >
               {WITHDRAWN_DATA_MESSAGE}
             </Text>
           </div>
         )}
       </div>
+      <div className={styles.summary} aria-label="Podsumowanie widocznych danych">
+        <div className={styles.summaryCard}>
+          <Text className={styles.summaryLabel}>Minimum</Text>
+          <Text className={styles.summaryValue}>{formatSummaryValue(summary.min)}</Text>
+          <Text className={styles.summaryMeta}>widoczny zakres</Text>
+        </div>
+        <div className={`${styles.summaryCard} ${styles.summaryCardPrimary}`}>
+          <Text className={styles.summaryLabel}>Średnia</Text>
+          <Text className={styles.summaryValue}>{formatSummaryValue(summary.avg)}</Text>
+          <Text className={styles.summaryMeta}>widoczny zakres</Text>
+        </div>
+        <div className={styles.summaryCard}>
+          <Text className={styles.summaryLabel}>Maksimum</Text>
+          <Text className={styles.summaryValue}>{formatSummaryValue(summary.max)}</Text>
+          <Text className={styles.summaryMeta}>widoczny zakres</Text>
+        </div>
+        <div className={`${styles.summaryCard} ${styles.summaryCardTrend}`}>
+          <Text className={styles.summaryLabel}>Trend</Text>
+          <Text className={styles.summaryValue}>{trendMeta?.label ?? '—'}</Text>
+          <Text className={styles.summaryMeta}>
+            {trendMeta
+              ? `${summary.completeness ?? 0}% kompletności danych`
+              : 'włącz w opcjach wykresu'}
+          </Text>
+        </div>
+      </div>
       <div id="data-source-info" style={{ marginTop: 14 }}>
-      <p style={{ fontSize: 12, textAlign: 'center', marginTop: 8, fontFamily: 'var(--font-open-sans), system-ui, sans-serif', color: tickColor }}>
+      <p className={styles.source}>
         Źródłem pochodzenia danych jest <a href="https://imgw.pl/" target="_blank" rel="noreferrer">Instytut Meteorologii i Gospodarki Wodnej – Państwowy Instytut Badawczy</a>{' '}
         Dane Instytutu Meteorologii i Gospodarki Wodnej – Państwowego Instytutu Badawczego zostały przetworzone
       </p>
       </div>
       </>
       )}
-    </div>
+      </div>
+    </section>
   );
 }
 export default Charts;

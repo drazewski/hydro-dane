@@ -1,16 +1,16 @@
 import "@mantine/core/styles.css";
 import "./globals.css";
 import localFont from "next/font/local";
-import { Open_Sans } from "next/font/google";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { cssVariablesResolver, theme } from "../theme";
 import type { Metadata } from "next";
 import MatomoPageViewTracker from "./components/analytics/MatomoPageViewTracker";
 import AnalyticsConsentBanner from "./components/analytics/AnalyticsConsentBanner";
 
-const openSans = Open_Sans({
-  subsets: ["latin"],
-  variable: "--font-open-sans",
+const montserrat = localFont({
+  src: "./fonts/Montserrat/Montserrat-VariableFont_wght.ttf",
+  variable: "--font-montserrat",
+  weight: "100 900",
   display: "swap",
 });
 
@@ -30,7 +30,7 @@ const BASE_URL = "https://hydro-dane.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
+    default: "Wykresy archiwalnych danych hydrologicznych IMGW",
     template: "%s – HydroDane",
   },
   applicationName: "HydroDane",
@@ -68,13 +68,13 @@ export const metadata: Metadata = {
     locale: "pl_PL",
     url: BASE_URL,
     siteName: "HydroDane",
-    title: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
+    title: "Wykresy archiwalnych danych hydrologicznych IMGW",
     description:
       "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane wodowskazów IMGW-PIB: poziom wody, przepływ, temperatura wody.",
   },
   twitter: {
     card: "summary",
-    title: "HydroDane – Wykresy archiwalnych danych hydrologicznych",
+    title: "Wykresy archiwalnych danych hydrologicznych IMGW",
     description:
       "Interaktywne wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych. Dane wodowskazów IMGW-PIB.",
   },
@@ -101,9 +101,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
+              "@id": `${BASE_URL}/#website`,
               name: "HydroDane",
               alternateName: "Hydro Dane",
-              url: BASE_URL,
+              url: `${BASE_URL}/`,
               description:
                 "Wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych.",
               inLanguage: "pl-PL",
@@ -111,7 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${openSans.variable} ${juraMedium.variable} ${juraBold.variable}`}>
+      <body className={`${montserrat.variable} ${juraMedium.variable} ${juraBold.variable}`}>
         <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="light">
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             {children}
