@@ -300,6 +300,29 @@
     min-width: 0;
     flex: 1;
   }
+
+  .monthModeRow {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .monthModeGroup {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .monthModeGroup :global(.mantine-SegmentedControl-label) {
+    padding-inline: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .monthSelect {
+    width: 122px;
+    min-width: 122px;
+    max-width: 122px;
+    flex: 0 0 122px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -334,6 +357,11 @@
 
   .dataTypeControl :global(.mantine-SegmentedControl-label) {
     padding-inline: 7px;
+    font-size: 12px;
+  }
+
+  .aggregationField :global(.mantine-SegmentedControl-label),
+  .optionsPanel :global(.mantine-SegmentedControl-label) {
     font-size: 12px;
   }
 
@@ -376,5 +404,10 @@
 
   .yearSeparator {
     font-size: var(--mantine-font-size-xs);
+  }
+
+  .monthModeGroup :global(.mantine-SegmentedControl-label) {
+    padding-inline: 3px;
+    font-size: 12px;
   }
 }

@@ -371,7 +371,10 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
                 onClick={() => toggleSeries(series.name)}
               >
                 <span className={styles.legendSwatch} style={{ backgroundColor: series.color }} />
-                <span>{series.label}</span>
+                <span className={styles.legendLabelDesktop}>{series.label}</span>
+                <span className={styles.legendLabelMobile}>
+                  {series.name.startsWith('min') ? 'Min.' : series.name.startsWith('avg') ? 'Śr.' : series.name.startsWith('max') ? 'Maks.' : 'Trend'}
+                </span>
               </button>
             );
           })}
@@ -382,6 +385,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
           dataKey="label"
           series={chartSeries}
           curveType="monotone"
+          withLegend={false}
           tickLine="x"
           gridAxis="xy"
           withDots={false}

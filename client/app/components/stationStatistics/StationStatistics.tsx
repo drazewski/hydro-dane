@@ -49,17 +49,6 @@ const StationStatistics = ({ selectedStation }: Props) => {
             {selectedStation.waterName} — {selectedStation.name.toUpperCase()}
           </Text>
         </div>
-        <Button
-          className={styles.toggle}
-          variant="subtle"
-          color="gray"
-          size="xs"
-          onClick={() => setTablesOpen((open) => !open)}
-          rightSection={<IconChevronDown className={tablesOpen ? styles.toggleIconOpen : styles.toggleIcon} size={15} />}
-          aria-expanded={tablesOpen}
-        >
-          {tablesOpen ? 'Zwiń zestawienie' : 'Pokaż zestawienie'}
-        </Button>
         {details && (
           <dl className={styles.details}>
             {stationDetails.map(([label, value]) => (
@@ -71,6 +60,17 @@ const StationStatistics = ({ selectedStation }: Props) => {
           </dl>
         )}
       </div>
+      <Button
+        className={styles.toggle}
+        variant="subtle"
+        color="gray"
+        size="xs"
+        onClick={() => setTablesOpen((open) => !open)}
+        rightSection={<IconChevronDown className={tablesOpen ? styles.toggleIconOpen : styles.toggleIcon} size={15} />}
+        aria-expanded={tablesOpen}
+      >
+        {tablesOpen ? 'Zwiń zestawienie' : 'Pokaż zestawienie'}
+      </Button>
       <Collapse in={tablesOpen}>
         <div className={styles.tables}>
           <CharacteristicFlows selectedStation={selectedStation} />

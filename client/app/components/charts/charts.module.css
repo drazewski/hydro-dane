@@ -136,6 +136,10 @@
   opacity: 0.45;
 }
 
+.legendLabelMobile {
+  display: none;
+}
+
 .legendSwatch {
   width: 8px;
   height: 8px;
@@ -303,6 +307,16 @@
 
   .legendControls {
     margin-inline: 6px;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .legendLabelDesktop {
+    display: none;
+  }
+
+  .legendLabelMobile {
+    display: inline;
   }
 
   .summary {
