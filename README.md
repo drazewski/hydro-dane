@@ -31,6 +31,7 @@ Frontend pobiera dane z katalogu `client/public/data`:
 
 - `monthly/<stationId>.json` — dane miesięczne,
 - `yearly/<stationId>.json` — agregaty roczne,
+- `map-stations.json` — współrzędne stacji prezentowanych na mapie,
 - `manifest.json` — wersja formatu, data eksportu i lista stacji.
 
 Pliki są serwowane przez Next.js pod adresami `/data/monthly/<stationId>.json` i `/data/yearly/<stationId>.json`. Nie są potrzebne uruchomiony Express, MySQL ani zmienne środowiskowe backendu.

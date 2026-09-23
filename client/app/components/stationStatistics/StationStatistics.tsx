@@ -1,9 +1,10 @@
 'use client';
 
 import { Button, Collapse, Paper, Text } from '@mantine/core';
-import { IconChevronDown } from '@tabler/icons-react';
+import { IconChevronDown, IconMapPin } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from '@mantine/hooks';
+import Link from 'next/link';
 import CharacteristicFlows from '../characteristicFlows/CharacteristicFlows';
 import ExtremumTable from '../extremumTable/ExtremumTable';
 import { StationType } from '../../types/recordTypes';
@@ -28,6 +29,8 @@ const StationStatistics = ({ selectedStation }: Props) => {
   const [tablesOpen, setTablesOpen] = useState(true);
   const { data: detailsByStation } = useStationDetails();
   const details = detailsByStation?.[selectedStation.id];
+  const hasMapCoordinates = Boolean(details?.latitude && details?.longitude);
+  const coordinateLabels = new Set(['Szerokość geograficzna', 'Długość geograficzna']);
   const stationDetails = [
     ['Rok założenia', details?.yearEstablished?.toString() ?? '—'],
     ['Szerokość geograficzna', formatCoordinate(details?.latitude ?? null, 'N')],
@@ -54,7 +57,18 @@ const StationStatistics = ({ selectedStation }: Props) => {
             {stationDetails.map(([label, value]) => (
               <div key={label}>
                 <dt>{label}</dt>
-                <dd>{value}</dd>
+                <dd>
+                  {hasMapCoordinates && coordinateLabels.has(label) ? (
+                    <Link
+                      href={`/mapa?station=${selectedStation.id}`}
+                      className={styles.coordinateLink}
+                      aria-label={`Pokaż stację ${selectedStation.name} na mapie`}
+                    >
+                      {value}
+                      <IconMapPin size={13} aria-hidden="true" />
+                    </Link>
+                  ) : value}
+                </dd>
               </div>
             ))}
           </dl>

@@ -14,6 +14,7 @@
     "@mantine/form": "^7.14.0",
     "@mantine/hooks": "7.13.5",
     "@tabler/icons-react": "^3.37.1",
+    "leaflet": "^1.9.4",
     "next": "^15.5.12",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -22,6 +23,7 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.21",
     "@types/node": "20.14.8",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",

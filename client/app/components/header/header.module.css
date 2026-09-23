@@ -19,15 +19,22 @@
   gap: 8px;
 }
 
-.guideLink {
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navLink {
   color: var(--mantine-color-dimmed);
   font-size: var(--mantine-font-size-sm);
   font-weight: 600;
   text-decoration: none;
 }
 
-.guideLink:hover,
-.guideLink:focus-visible {
+.navLink:hover,
+.navLink:focus-visible,
+.navLink[aria-current="page"] {
   color: var(--mantine-primary-color-filled);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -70,7 +77,11 @@
     margin-left: 0;
   }
 
-  .guideLink {
+  .navigation {
+    gap: 10px;
+  }
+
+  .navLink {
     font-size: 12px;
   }
 }
@@ -94,11 +105,12 @@
     height: 26px;
   }
 
-  .guideLink {
-    max-width: 90px;
-    overflow: hidden;
+  .navigation {
+    gap: 8px;
+  }
+
+  .navLink {
     font-size: 11px;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 

@@ -8,6 +8,7 @@
  */
 const fs = require("fs/promises");
 const path = require("path");
+const { exportMapData } = require("./export-map-data");
 
 const inputFile = path.resolve(__dirname, "../kody_stacji.csv");
 const outputFile = path.resolve(__dirname, "../client/public/data/station-details.json");
@@ -51,6 +52,7 @@ async function run() {
   }
 
   await fs.writeFile(outputFile, JSON.stringify({ v: 1, d: details }), "utf8");
+  await exportMapData();
   process.stdout.write(`Wyeksportowano metrykę ${Object.keys(details).length} stacji do ${outputFile}\n`);
 }
 

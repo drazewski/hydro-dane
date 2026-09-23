@@ -1,15 +1,17 @@
 import { LineChart } from '@mantine/charts';
 import { ActionIcon, Loader, Text, Tooltip, useMantineColorScheme } from '@mantine/core';
+import Link from 'next/link';
 import { MonthlyStructuredRecordType, RecordDataType, StationType, YearlyRecordType } from "../../types/recordTypes";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStationStore } from '../../hooks/useStationStore';
 import { useYearlyRecords } from '../../hooks/useYearlyRecords';
+import { useStationDetails } from '../../hooks/useStationDetails';
 import ChartTooltip from '../chartTooltip/ChartTooltip';
 import { WITHDRAWN_DATA_MESSAGE, WITHDRAWN_STATION_IDS } from '../../constants/withdrawnStations';
 import MonthlyHeatmap from '../monthlyHeatmap/MonthlyHeatmap';
 import styles from './charts.module.css';
-import { IconArrowsHorizontal, IconMaximize, IconMinimize } from '@tabler/icons-react';
+import { IconArrowsHorizontal, IconMapPin, IconMaximize, IconMinimize } from '@tabler/icons-react';
 
 interface Props {
   selectedStation: StationType;
@@ -34,6 +36,9 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const tickColor = isDark ? '#c4d0da' : '#444';
   const gridColor = isDark ? '#3a4a57' : '#e0e0e0';
   const hasWithdrawnData = WITHDRAWN_STATION_IDS.has(selectedStation.id);
+  const { data: detailsByStation } = useStationDetails();
+  const stationDetails = detailsByStation?.[selectedStation.id];
+  const hasMapCoordinates = Boolean(stationDetails?.latitude && stationDetails?.longitude);
   const { data: monthlyData, isLoading: isLoadingMonthly, isError: isErrorMonthly } = useMonthlyRecords(selectedStation?.id, isMonthlyData);
   const { data: yearlyData, isLoading: isLoadingYearly, isError: isErrorYearly } = useYearlyRecords(selectedStation?.id, isMonthlyData);
 
@@ -319,6 +324,19 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
                   aria-label={heatmapFitWidth ? 'Przywróć szerokie komórki' : 'Dopasuj kalendarz do szerokości'}
                 >
                   <IconArrowsHorizontal size={18} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {hasMapCoordinates && (
+              <Tooltip label="Pokaż stację na mapie">
+                <ActionIcon
+                  component={Link}
+                  href={`/mapa?station=${selectedStation.id}`}
+                  variant="subtle"
+                  color="gray"
+                  aria-label="Pokaż stację na mapie"
+                >
+                  <IconMapPin size={18} />
                 </ActionIcon>
               </Tooltip>
             )}

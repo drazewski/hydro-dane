@@ -154,7 +154,6 @@ async function run() {
       generatedAt: new Date().toISOString(),
       stations: files.sort((a, b) => a - b),
     });
-
     process.stdout.write(
       `Exported ${files.length} stations, ${monthlyRecords} monthly records and ${yearlyRecords} yearly records to ${outputRoot}\n`
     );

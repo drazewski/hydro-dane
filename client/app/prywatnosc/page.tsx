@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Stack, Text, Title } from "@mantine/core";
+import { Anchor, Stack, Text, Title } from "@mantine/core";
 import Header from "../components/header/Header";
 import { Footer } from "../components/footer/Footer";
 import AnalyticsSettingsButton from "../components/analytics/AnalyticsSettingsButton";
@@ -34,6 +34,21 @@ export default function PrivacyPage() {
             </Text>
             <Text size="sm" c="dimmed">
               Możesz w każdej chwili zmienić wcześniejszą decyzję.
+            </Text>
+          </Stack>
+
+          <Stack gap="xs">
+            <Title order={4} fw={500}>
+              Mapa stacji
+            </Title>
+            <Text size="sm" c="dimmed">
+              Podkład na stronie mapy jest pobierany z serwerów OpenStreetMap. Podczas wyświetlania mapy przeglądarka łączy się z tym zewnętrznym serwisem i przekazuje standardowe dane techniczne, takie jak adres IP oraz adres odwiedzanej strony.
+            </Text>
+            <Text size="sm" c="dimmed">
+              Więcej informacji znajdziesz w{' '}
+              <Anchor href="https://osmfoundation.org/wiki/Privacy_Policy" target="_blank" rel="noopener noreferrer">
+                polityce prywatności OpenStreetMap Foundation
+              </Anchor>.
             </Text>
           </Stack>
 

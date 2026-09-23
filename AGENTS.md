@@ -114,6 +114,16 @@ When filtering by year ranges, remember that the year is hydrological, not calen
 
 The frontend expects `NEXT_PUBLIC_VITE_BASE_URL` pointing to the backend API.
 
+## Map Data
+
+- The station map currently shows only stations from the active frontend catalog that have coordinates.
+- Show links to `/mapa?station=<stationId>` only when the station has both latitude and longitude; stations without complete coordinates must not expose map navigation.
+- Map temperature filters must use the same `hasTemperatureData` and `hasFreshTemperatureData` flags as the station picker status icons.
+- Links that open a selected station on the map use `/mapa?station=<stationId>`; the map must zoom to and highlight that station.
+- Do not display or calculate a latest measurement year on the map while all currently mapped stations share the same latest year.
+- A possible future extension is to include historical/inactive stations and restore the latest measurement year in the tooltip.
+- If that extension is implemented, generate the latest year in one static map index during data export. Do not fetch each station's measurements on hover or map load.
+
 ## Code Style
 
 - Use ES6+ syntax.

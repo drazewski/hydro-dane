@@ -50,6 +50,22 @@
   font-variant-numeric: tabular-nums;
 }
 
+.coordinateLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mantine-primary-color-filled);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.coordinateLink:hover,
+.coordinateLink:focus-visible {
+  text-decoration-style: solid;
+}
+
 .tables {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
