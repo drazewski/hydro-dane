@@ -4,6 +4,7 @@
 
 .fitToWidth {
   width: 100%;
+  min-height: 0;
 }
 
 .fitToWidth :global(.mantine-ScrollArea-viewport) {
@@ -49,13 +50,21 @@
 
 .fitToWidth .cell {
   width: auto;
-  height: auto;
+  height: 100%;
   min-width: 0;
-  aspect-ratio: 1;
+  min-height: 0;
+  border-radius: min(2px, calc(var(--heatmap-fit-row-height) / 5));
 }
 
 .fitToWidth .year {
   font-size: 8px;
+}
+
+.fitToWidth .month {
+  min-height: 0;
+  overflow: hidden;
+  font-size: clamp(3px, var(--heatmap-fit-row-height), 12px);
+  line-height: 1;
 }
 
 .cell:hover {

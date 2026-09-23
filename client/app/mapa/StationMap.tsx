@@ -44,6 +44,18 @@ const StationMap = () => {
   const [isMapReady, setIsMapReady] = useState(false);
   const [focusedStationId, setFocusedStationId] = useState<number | null>(null);
 
+  const removeStationQueryParam = useCallback(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('station')) return;
+
+    url.searchParams.delete('station');
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${url.pathname}${url.search}${url.hash}`
+    );
+  }, []);
+
   useEffect(() => {
     const stationId = Number(new URLSearchParams(window.location.search).get('station'));
     setFocusedStationId(Number.isInteger(stationId) && stationId > 0 ? stationId : null);
@@ -196,6 +208,7 @@ const StationMap = () => {
       if (isFocused) {
         mapRef.current?.setView([station.latitude, station.longitude], 11, { animate: false });
         point.openTooltip();
+        removeStationQueryParam();
       }
 
       const element = point.getElement();
@@ -214,7 +227,7 @@ const StationMap = () => {
         }
       });
     });
-  }, [filteredStations, focusedStationId, isMapReady, selectStation]);
+  }, [filteredStations, focusedStationId, isMapReady, removeStationQueryParam, selectStation]);
 
   if (isLoading) {
     return (
@@ -247,7 +260,11 @@ const StationMap = () => {
         <Text size="sm" fw={600}>Pokaż stacje</Text>
         <SegmentedControl
           value={filter}
-          onChange={(value) => setFilter(value as StationFilter)}
+          onChange={(value) => {
+            removeStationQueryParam();
+            setFocusedStationId(null);
+            setFilter(value as StationFilter);
+          }}
           aria-label="Filtr stacji na mapie"
           className={styles.segmentedControl}
           orientation={isMobile ? 'vertical' : 'horizontal'}
