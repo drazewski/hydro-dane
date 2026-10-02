@@ -379,7 +379,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     <section ref={chartCardRef} className={styles.card} aria-label={`Wykres: ${dataTypeLabel}`}>
       <header className={styles.header}>
         <div>
-          <Text className={styles.stationContext}>
+          <Text className={styles.stationContext} data-export-station="true">
             {selectedStation.waterName} — {selectedStation.name.toUpperCase()} ({selectedStation.id})
           </Text>
           <Text className={styles.title}>{dataTypeLabel}</Text>
