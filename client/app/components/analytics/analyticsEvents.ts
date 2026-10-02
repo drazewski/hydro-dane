@@ -20,6 +20,10 @@ function getDataTypeDetail(dataType: RecordDataType | null | undefined) {
   return `data: ${dataType ?? "none"}`;
 }
 
+function getChartDetail(station: StationType, dataType: RecordDataType) {
+  return `${getStationDetail(station)} | ${getDataTypeDetail(dataType)}`;
+}
+
 function trackAnalyticsEvent(action: string, name: string) {
   if (typeof window === "undefined" || getAnalyticsConsent() !== "accepted") {
     return;
@@ -51,5 +55,39 @@ export function trackPageChanged(
   trackAnalyticsEvent(
     "page_changed",
     `page: ${page} | ${getStationDetail(station)} | ${getDataTypeDetail(dataType)}`
+  );
+}
+
+export function trackChartImageDownloaded(station: StationType, dataType: RecordDataType) {
+  trackAnalyticsEvent("chart_image_downloaded", getChartDetail(station, dataType));
+}
+
+export function trackChartPdfDownloaded(station: StationType, dataType: RecordDataType) {
+  trackAnalyticsEvent("chart_pdf_downloaded", getChartDetail(station, dataType));
+}
+
+export function trackChartLinkGenerated(station: StationType, dataType: RecordDataType) {
+  trackAnalyticsEvent("chart_link_generated", getChartDetail(station, dataType));
+}
+
+export function trackChartFullscreenEntered(station: StationType, dataType: RecordDataType) {
+  trackAnalyticsEvent("chart_fullscreen_entered", getChartDetail(station, dataType));
+}
+
+export function trackMapOpened(station: StationType | null) {
+  trackAnalyticsEvent(
+    "map_opened",
+    station ? `map: station | ${getStationDetail(station)}` : "map: global"
+  );
+}
+
+export function trackFrequencySelected(
+  station: StationType,
+  dataType: RecordDataType,
+  frequency: "monthly" | "yearly"
+) {
+  trackAnalyticsEvent(
+    "frequency_selected",
+    `frequency: ${frequency} | ${getChartDetail(station, dataType)}`
   );
 }

@@ -7,7 +7,7 @@ import styles from "./filters.module.css";
 import { useEffect, useMemo, useState } from "react";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
 import { useYearlyRecords } from "../../hooks/useYearlyRecords";
-import { trackDataSelected } from "../analytics/analyticsEvents";
+import { trackDataSelected, trackFrequencySelected } from "../analytics/analyticsEvents";
 
 interface Props {
   selectedStation: StationType;
@@ -188,7 +188,13 @@ const Filters = ({ selectedStation }: Props) => {
   };
 
   const handleDataAggregationModeChange = (value: string) => {
-    setMonthlyData(value === 'monthly');
+    const frequency = value as 'monthly' | 'yearly';
+    if ((frequency === 'monthly') === isMonthlyData) {
+      return;
+    }
+
+    setMonthlyData(frequency === 'monthly');
+    trackFrequencySelected(selectedStation, dataType, frequency);
   };
 
   const trendOptions = useMemo(

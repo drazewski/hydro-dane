@@ -13,6 +13,13 @@ import MonthlyHeatmap from '../monthlyHeatmap/MonthlyHeatmap';
 import styles from './charts.module.css';
 import { IconArrowsHorizontal, IconFileTypePdf, IconLink, IconMapPin, IconMaximize, IconMinimize, IconPhoto, IconShare } from '@tabler/icons-react';
 import { chartElementToJpeg, downloadBlob, downloadDataUrl, jpegToPdfBlob } from './chartExport';
+import {
+  trackChartFullscreenEntered,
+  trackChartImageDownloaded,
+  trackChartLinkGenerated,
+  trackChartPdfDownloaded,
+  trackMapOpened,
+} from '../analytics/analyticsEvents';
 
 interface Props {
   selectedStation: StationType;
@@ -255,7 +262,8 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     }
 
     await chartCardRef.current.requestFullscreen();
-  }, []);
+    trackChartFullscreenEntered(selectedStation, selectedType);
+  }, [selectedStation, selectedType]);
 
   const getShareUrl = useCallback(() => {
     const url = new URL(window.location.origin + window.location.pathname);
@@ -288,11 +296,12 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
         input.remove();
       }
       setShareMessage('Link do wykresu skopiowany do schowka');
+      trackChartLinkGenerated(selectedStation, selectedType);
     } catch {
       setShareMessage('Nie udało się skopiować linku. Spróbuj ponownie.');
     }
     window.setTimeout(() => setShareMessage(null), 2500);
-  }, [getShareUrl]);
+  }, [getShareUrl, selectedStation, selectedType]);
 
   const getChartImage = useCallback(async () => {
     if (!chartCardRef.current) throw new Error('Chart is not available');
@@ -306,13 +315,14 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
       const { dataUrl } = await getChartImage();
       downloadDataUrl(dataUrl, `wykres-${selectedStation.id}-${selectedType}-${yearFrom}-${yearTo}.jpg`);
       setShareMessage('Pobieranie obrazka rozpoczęte');
+      trackChartImageDownloaded(selectedStation, selectedType);
     } catch {
       setShareMessage('Nie udało się pobrać obrazka. Spróbuj ponownie.');
     } finally {
       setIsExporting(false);
       window.setTimeout(() => setShareMessage(null), 3000);
     }
-  }, [getChartImage, selectedStation.id, selectedType, yearFrom, yearTo]);
+  }, [getChartImage, selectedStation, selectedType, yearFrom, yearTo]);
 
   const downloadPdf = useCallback(async () => {
     setIsExporting(true);
@@ -324,13 +334,14 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
         `wykres-${selectedStation.id}-${selectedType}-${yearFrom}-${yearTo}.pdf`
       );
       setShareMessage('Pobieranie PDF rozpoczęte');
+      trackChartPdfDownloaded(selectedStation, selectedType);
     } catch {
       setShareMessage('Nie udało się pobrać PDF. Spróbuj ponownie.');
     } finally {
       setIsExporting(false);
       window.setTimeout(() => setShareMessage(null), 3000);
     }
-  }, [getChartImage, selectedStation.id, selectedType, yearFrom, yearTo]);
+  }, [getChartImage, selectedStation, selectedType, yearFrom, yearTo]);
 
   const summary = useMemo(() => {
     const valuesFor = (key: string) =>
@@ -410,6 +421,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
                 <ActionIcon
                   component={Link}
                   href={`/mapa?station=${selectedStation.id}`}
+                  onClick={() => trackMapOpened(selectedStation)}
                   variant="subtle"
                   color="gray"
                   aria-label="Pokaż stację na mapie"

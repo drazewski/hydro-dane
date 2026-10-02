@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IconMoon, IconSun } from "@tabler/icons-react";
 import { ActionIcon, useMantineColorScheme } from "@mantine/core";
+import { trackMapOpened } from "../analytics/analyticsEvents";
 
 const Header = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -27,6 +28,7 @@ const Header = () => {
           <nav className={styles.navigation} aria-label="Główna nawigacja">
             <Link
               href="/mapa"
+              onClick={() => trackMapOpened(null)}
               className={styles.navLink}
               aria-current={pathname === '/mapa' ? 'page' : undefined}
             >

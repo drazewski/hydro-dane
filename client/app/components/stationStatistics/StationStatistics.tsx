@@ -10,6 +10,7 @@ import ExtremumTable from '../extremumTable/ExtremumTable';
 import { StationType } from '../../types/recordTypes';
 import { useStationDetails } from '../../hooks/useStationDetails';
 import styles from './stationStatistics.module.css';
+import { trackMapOpened } from '../analytics/analyticsEvents';
 
 interface Props {
   selectedStation: StationType;
@@ -61,6 +62,7 @@ const StationStatistics = ({ selectedStation }: Props) => {
                   {hasMapCoordinates && coordinateLabels.has(label) ? (
                     <Link
                       href={`/mapa?station=${selectedStation.id}`}
+                      onClick={() => trackMapOpened(selectedStation)}
                       className={styles.coordinateLink}
                       aria-label={`Pokaż stację ${selectedStation.name} na mapie`}
                     >
