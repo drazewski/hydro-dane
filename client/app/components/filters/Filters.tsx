@@ -4,7 +4,7 @@ import { IconAdjustmentsHorizontal, IconRefresh } from '@tabler/icons-react';
 import { useStationStore } from "../../hooks/useStationStore";
 import { RecordDataType, StationType } from "../../types/recordTypes";
 import styles from "./filters.module.css";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMonthlyRecords } from "../../hooks/useMonthlyRecords";
 import { useYearlyRecords } from "../../hooks/useYearlyRecords";
 import { trackDataSelected } from "../analytics/analyticsEvents";
@@ -56,7 +56,6 @@ const Filters = ({ selectedStation }: Props) => {
       : aggregations.includes('min')
         ? 'min'
         : 'avg';
-  const previousScopeKeyRef = useRef<string | null>(null);
   const monthOptions = useMemo(
     () => [
       { value: '1', label: 'Styczeń' },
@@ -88,14 +87,9 @@ const Filters = ({ selectedStation }: Props) => {
 
     const minYear = String(sortedYears[0]);
     const maxYear = String(sortedYears[sortedYears.length - 1]);
-    const currentScopeKey = `${selectedStation.id}:${isMonthlyData ? "monthly" : "yearly"}:${dataType}:${monthlyMode}:${selectedMonth ?? "all"}`;
     const currentFromValid = yearFrom != null && sortedYears.includes(Number(yearFrom));
     const currentToValid = yearTo != null && sortedYears.includes(Number(yearTo));
-    const scopeChanged = previousScopeKeyRef.current !== currentScopeKey;
-
-    previousScopeKeyRef.current = currentScopeKey;
-
-    if (scopeChanged || !currentFromValid || !currentToValid || Number(yearFrom) > Number(yearTo)) {
+    if (!currentFromValid || !currentToValid || Number(yearFrom) > Number(yearTo)) {
       setYearFrom(minYear);
       setYearTo(maxYear);
     }
