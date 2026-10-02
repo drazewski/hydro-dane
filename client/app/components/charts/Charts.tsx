@@ -12,7 +12,7 @@ import { WITHDRAWN_DATA_MESSAGE, WITHDRAWN_STATION_IDS } from '../../constants/w
 import MonthlyHeatmap from '../monthlyHeatmap/MonthlyHeatmap';
 import styles from './charts.module.css';
 import { IconArrowsHorizontal, IconFileTypePdf, IconLink, IconMapPin, IconMaximize, IconMinimize, IconPhoto, IconShare } from '@tabler/icons-react';
-import { chartElementToJpeg, downloadBlob, jpegToPdfBlob } from './chartExport';
+import { chartElementToJpeg, downloadBlob, downloadDataUrl, jpegToPdfBlob } from './chartExport';
 
 interface Props {
   selectedStation: StationType;
@@ -33,6 +33,7 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   const yearFrom = useStationStore((state) => state.yearFrom);
   const yearTo = useStationStore((state) => state.yearTo);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const tickColor = isDark ? '#c4d0da' : '#444';
@@ -271,23 +272,27 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
     return url.toString();
   }, [aggregation, chartView, isMonthlyData, monthlyMode, selectedMonth, selectedStation.id, selectedType, trendLine, yearFrom, yearTo]);
 
-  const shareLink = useCallback(async () => {
+  const copyShareLink = useCallback(async () => {
     const url = getShareUrl();
-    const shareData = { title: `${dataTypeLabel} — ${selectedStation.name}`, url };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const input = document.createElement('textarea');
+        input.value = url;
+        input.style.position = 'fixed';
+        input.style.opacity = '0';
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        input.remove();
       }
+      setShareMessage('Link do wykresu skopiowany do schowka');
+    } catch {
+      setShareMessage('Nie udało się skopiować linku. Spróbuj ponownie.');
     }
-
-    await navigator.clipboard.writeText(url);
-    setShareMessage('Link skopiowany do schowka');
     window.setTimeout(() => setShareMessage(null), 2500);
-  }, [dataTypeLabel, getShareUrl, selectedStation.name]);
+  }, [getShareUrl]);
 
   const getChartImage = useCallback(async () => {
     if (!chartCardRef.current) throw new Error('Chart is not available');
@@ -295,19 +300,36 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
   }, [isDark]);
 
   const downloadImage = useCallback(async () => {
-    const { dataUrl } = await getChartImage();
-    const link = document.createElement('a');
-    link.download = `wykres-${selectedStation.id}-${selectedType}-${yearFrom}-${yearTo}.jpg`;
-    link.href = dataUrl;
-    link.click();
+    setIsExporting(true);
+    setShareMessage('Przygotowywanie obrazka…');
+    try {
+      const { dataUrl } = await getChartImage();
+      downloadDataUrl(dataUrl, `wykres-${selectedStation.id}-${selectedType}-${yearFrom}-${yearTo}.jpg`);
+      setShareMessage('Pobieranie obrazka rozpoczęte');
+    } catch {
+      setShareMessage('Nie udało się pobrać obrazka. Spróbuj ponownie.');
+    } finally {
+      setIsExporting(false);
+      window.setTimeout(() => setShareMessage(null), 3000);
+    }
   }, [getChartImage, selectedStation.id, selectedType, yearFrom, yearTo]);
 
   const downloadPdf = useCallback(async () => {
-    const { dataUrl, width, height } = await getChartImage();
-    downloadBlob(
-      jpegToPdfBlob(dataUrl, width, height),
-      `wykres-${selectedStation.id}-${selectedType}-${yearFrom}-${yearTo}.pdf`
-    );
+    setIsExporting(true);
+    setShareMessage('Przygotowywanie PDF…');
+    try {
+      const { dataUrl, width, height } = await getChartImage();
+      downloadBlob(
+        jpegToPdfBlob(dataUrl, width, height),
+        `wykres-${selectedStation.id}-${selectedType}-${yearFrom}-${yearTo}.pdf`
+      );
+      setShareMessage('Pobieranie PDF rozpoczęte');
+    } catch {
+      setShareMessage('Nie udało się pobrać PDF. Spróbuj ponownie.');
+    } finally {
+      setIsExporting(false);
+      window.setTimeout(() => setShareMessage(null), 3000);
+    }
   }, [getChartImage, selectedStation.id, selectedType, yearFrom, yearTo]);
 
   const summary = useMemo(() => {
@@ -406,9 +428,9 @@ const Charts = ({ selectedStation, selectedType }: Props) => {
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Label>Udostępnij wykres</Menu.Label>
-                <Menu.Item leftSection={<IconLink size={16} />} onClick={shareLink}>Wyślij link</Menu.Item>
-                <Menu.Item leftSection={<IconFileTypePdf size={16} />} onClick={downloadPdf}>Pobierz PDF</Menu.Item>
-                <Menu.Item leftSection={<IconPhoto size={16} />} onClick={downloadImage}>Pobierz obrazek (JPG)</Menu.Item>
+                <Menu.Item leftSection={<IconLink size={16} />} onClick={copyShareLink}>Skopiuj link do wykresu</Menu.Item>
+                <Menu.Item leftSection={<IconFileTypePdf size={16} />} onClick={downloadPdf} disabled={isExporting}>Pobierz PDF</Menu.Item>
+                <Menu.Item leftSection={<IconPhoto size={16} />} onClick={downloadImage} disabled={isExporting}>Pobierz obrazek (JPG)</Menu.Item>
               </Menu.Dropdown>
             </Menu>
             <Tooltip label={isFullscreen ? 'Zamknij pełny ekran' : 'Otwórz pełny ekran'}>
