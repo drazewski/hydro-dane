@@ -7,6 +7,7 @@ import { cssVariablesResolver, theme } from "../theme";
 import type { Metadata } from "next";
 import MatomoPageViewTracker from "./components/analytics/MatomoPageViewTracker";
 import AnalyticsConsentBanner from "./components/analytics/AnalyticsConsentBanner";
+import SupportPrompt from "./components/support/SupportPrompt";
 
 const montserrat = localFont({
   src: "./fonts/Montserrat/Montserrat-VariableFont_wght.ttf",
@@ -117,6 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} defaultColorScheme="light">
           <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
             {children}
+            <SupportPrompt />
             <AnalyticsConsentBanner />
             <MatomoPageViewTracker />
           </div>

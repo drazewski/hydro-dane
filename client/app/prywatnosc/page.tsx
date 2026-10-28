@@ -52,6 +52,18 @@ export default function PrivacyPage() {
             </Text>
           </Stack>
 
+          <Stack gap="xs">
+            <Title order={4} fw={500}>
+              Prośba o wsparcie projektu
+            </Title>
+            <Text size="sm" c="dimmed">
+              W localStorage zapisujemy termin kolejnego możliwego wyświetlenia prośby o wsparcie,
+              aby pojawiała się najwyżej raz na trzy miesiące. W sessionStorage przechowujemy numery
+              stacji wybranych w bieżącej sesji, aby pokazać prośbę po wybraniu drugiej różnej stacji.
+              Te informacje pozostają w Twojej przeglądarce i nie są wysyłane na serwer.
+            </Text>
+          </Stack>
+
           <AnalyticsSettingsButton />
         </Stack>
       </main>

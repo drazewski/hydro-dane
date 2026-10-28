@@ -1,5 +1,6 @@
 import { Group, Anchor, Text, Stack } from "@mantine/core";
 import styles from "./footer.module.css";
+import { SUPPORT_URL } from '../../constants/support';
 
 export function Footer() {
   return (
@@ -7,6 +8,15 @@ export function Footer() {
       <div className={styles.inner}>
         <Stack gap="xs">
           <Group gap="xl" wrap="wrap" className={styles.links}>
+            <Anchor
+              href={SUPPORT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+              fw={600}
+            >
+              ☕ Postaw kawę — wesprzyj projekt
+            </Anchor>
             <Anchor
               href="https://github.com/drazewski/hydro-data-charts"
               target="_blank"

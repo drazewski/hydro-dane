@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { RecordDataType, StationType } from '../types/recordTypes';
+import { useSupportPromptStore } from './useSupportPromptStore';
 
 interface StationStoreType {
   station: StationType | null;
@@ -41,16 +42,19 @@ export const useStationStore = create<StationStoreType>((set) => ({
   trendLine: 'none',
   stationPickerAttention: 0,
   stationPickerEditing: false,
-  setSelectedStation: (newStation) => set(() => ({
-    station: newStation,
-    yearFrom: null,
-    yearTo: null,
-    monthlyMode: 'all',
-    chartView: 'line',
-    selectedMonth: null,
-    trendLine: 'none',
-    stationPickerEditing: false,
-  })),
+  setSelectedStation: (newStation) => {
+    set(() => ({
+      station: newStation,
+      yearFrom: null,
+      yearTo: null,
+      monthlyMode: 'all',
+      chartView: 'line',
+      selectedMonth: null,
+      trendLine: 'none',
+      stationPickerEditing: false,
+    }));
+    if (newStation) useSupportPromptStore.getState().recordStationSelection(newStation.id);
+  },
   setYearFrom: (year) => set(() => ({ yearFrom: year })),
   setYearTo: (year) => set(() => ({ yearTo: year })),
   setIsMonthlyData: (isMonthly) => set(() => ({ isMonthlyData: isMonthly })),
