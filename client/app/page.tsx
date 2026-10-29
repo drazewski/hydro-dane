@@ -74,7 +74,13 @@ export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
       <Header />
-      <main className={styles.main}>
+      <main className={`${styles.main} ${!selectedStation ? styles.homeIntro : ''}`}>
+        {!selectedStation && (
+          <div className={styles.chartPreview} aria-hidden="true">
+            <div className={`${styles.chartPreviewImage} ${styles.chartPreviewFirst}`} />
+            <div className={`${styles.chartPreviewImage} ${styles.chartPreviewSecond}`} />
+          </div>
+        )}
         <div className={`${styles.titleWrapper} ${selectedStation ? styles.selected : ""}`}>
           {selectedStation && !stationPickerEditing ? (
             <button type="button" className={styles.stationTitleButton} onClick={startStationPickerEditing}>

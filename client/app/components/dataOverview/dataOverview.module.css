@@ -18,3 +18,9 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+@media (min-width: 1021px) {
+  .overview {
+    max-width: 44%;
+  }
+}

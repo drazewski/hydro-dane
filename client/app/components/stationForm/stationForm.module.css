@@ -50,6 +50,12 @@
   gap: 10px 16px;
 }
 
+@media (min-width: 1021px) {
+  .legend {
+    max-width: 48%;
+  }
+}
+
 .optionText {
   min-width: 0;
 }
