@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import MatomoPageViewTracker from "./components/analytics/MatomoPageViewTracker";
 import AnalyticsConsentBanner from "./components/analytics/AnalyticsConsentBanner";
 import SupportPrompt from "./components/support/SupportPrompt";
+import { SITE_URL } from "./constants/site";
 
 const montserrat = localFont({
   src: "./fonts/Montserrat/Montserrat-VariableFont_wght.ttf",
@@ -27,10 +28,8 @@ const juraBold = localFont({
   weight: "600",
 });
 
-const BASE_URL = "https://hydro-dane.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Wykresy archiwalnych danych hydrologicznych IMGW",
     template: "%s – HydroDane",
@@ -63,12 +62,12 @@ export const metadata: Metadata = {
     apple: "/icon.svg",
   },
   alternates: {
-    canonical: BASE_URL,
+    canonical: SITE_URL,
   },
   openGraph: {
     type: "website",
     locale: "pl_PL",
-    url: BASE_URL,
+    url: SITE_URL,
     siteName: "HydroDane",
     title: "Wykresy archiwalnych danych hydrologicznych IMGW",
     description:
@@ -103,10 +102,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "@id": `${BASE_URL}/#website`,
+              "@id": `${SITE_URL}/#website`,
               name: "HydroDane",
               alternateName: "Hydro Dane",
-              url: `${BASE_URL}/`,
+              url: `${SITE_URL}/`,
               description:
                 "Wykresy archiwalnych danych hydrologicznych z polskich stacji pomiarowych.",
               inLanguage: "pl-PL",

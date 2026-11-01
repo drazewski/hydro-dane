@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   description:
     'Przewodnik po wykresach danych hydrologicznych HydroDane: wybór stacji, dane roczne i miesięczne, trend, kalendarz danych oraz charakterystyki hydrologiczne.',
   alternates: {
-    canonical: 'https://hydro-dane.vercel.app/przewodnik',
+    canonical: '/przewodnik',
   },
 };
 

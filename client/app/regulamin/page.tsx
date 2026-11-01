@@ -7,7 +7,7 @@ import styles from "../page.module.css";
 export const metadata: Metadata = {
   title: "Regulamin strony",
   alternates: {
-    canonical: "https://hydro-dane.vercel.app/regulamin",
+    canonical: "/regulamin",
   },
 };
 

@@ -8,7 +8,7 @@ import styles from "../page.module.css";
 export const metadata: Metadata = {
   title: "Prywatność",
   alternates: {
-    canonical: "https://hydro-dane.vercel.app/prywatnosc",
+    canonical: "/prywatnosc",
   },
 };
 

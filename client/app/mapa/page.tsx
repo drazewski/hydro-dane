@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description:
     'Mapa Polski z lokalizacjami stacji hydrologicznych oraz nazwami rzek i stacji pomiarowych.',
   alternates: {
-    canonical: 'https://hydro-dane.vercel.app/mapa',
+    canonical: '/mapa',
   },
 };
 
